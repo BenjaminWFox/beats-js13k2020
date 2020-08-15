@@ -1,19 +1,19 @@
 
-function Kick(context) {
+function Bass(context) {
   this.context = context
 }
 
-Kick.prototype.setup = function () {
+Bass.prototype.setup = function () {
   this.osc = this.context.createOscillator()
   this.gain = this.context.createGain()
   this.osc.connect(this.gain)
   this.gain.connect(this.context.destination)
 }
 
-Kick.prototype.trigger = function (time) {
+Bass.prototype.trigger = function (time) {
   this.setup()
 
-  this.osc.frequency.setValueAtTime(200, time)
+  this.osc.frequency.setValueAtTime(100, time)
   this.gain.gain.setValueAtTime(1, time)
 
   this.osc.frequency.exponentialRampToValueAtTime(0.01, time + 1.25)
@@ -21,7 +21,7 @@ Kick.prototype.trigger = function (time) {
 
   this.osc.start(time)
 
-  this.osc.stop(time + 1.25)
+  this.osc.stop(time + 1)
 }
 
-export default Kick
+export default Bass

@@ -1,14 +1,135 @@
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
 body {
-  background-color: white;
-}
-
-#wrapper {
+  margin: 0 auto;
+  background-color: #000000;
+  // font-family: 'Courier New', Courier, monospace;
+  font-family: 'Impact';
+  // font-style: italic;
+  font-size: 16px;
   text-align: center;
-  font-family: 'Courier New', Courier, monospace;
+  padding: 0;
+  // height: 100vh;
+  // width: 100vw;
 }
 
-#cssImage {
-  width: 400px;
-  height: 200px;
-  background-image: url('./assets/images/sprites/game-image-3.png');
+#synth-wrapper {
+  margin: 0 auto;
+  width: 100%;
+  background-color: #b1b9c4;
+  padding: 0 1rem 1rem;
+  border: .25rem #222d31 solid;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+#synth-header {
+  font-size: 3rem;
+}
+
+#game-wrapper {
+  background-color: #1b262a;
+  position: relative;
+  width: 100%;
+  // height: // set in JS
+  flex-grow: 1;
+}
+
+#beat-button-wrapper {
+  padding: 1rem 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#lanes {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  overflow: hidden;
+
+  & > div {
+    width: 25%;
+    height: 100%;
+    // background-color: rgba(255, 255, 255, .5);
+    display: flex;
+    justify-content: center;
+    position: relative;
+
+    & .beat {
+      position: absolute;
+      background-color: #ffffff;
+      // border-radius: 100px;
+      bottom: 50px;
+    }
+
+    & .guide {
+      width: 1px;
+      height: 100%;
+      background-color: #ffffff;
+    }
+  }
+}
+
+#bass {
+  // transform: skew(-4deg, 4deg);
+  // & .beat {
+  //   transform: skew(4deg, -4deg);
+  // }
+}
+#kick {
+  // transform: skew(-2deg, 2deg);
+  // & .beat {
+  //   transform: skew(2deg, -2deg);
+  // }
+}
+#snare { 
+  // transform: skew(2deg, -2deg);
+  // & .beat {
+  //   transform: skew(-2deg, 2deg);
+  // }
+}
+#hihat { 
+  // transform: skew(4deg, -4deg);
+  // & .beat {
+  //   transform: skew(-4deg, 4deg);
+  // }
+}
+
+#zone {
+  position: absolute;
+  bottom: 50px;
+  height: 80px;
+  width: 100%;
+  background-color: rgba(255, 255, 255, .25);
+  // border-bottom: 2px dashed rgba(255, 255, 255, .75);
+  // border-top: 2px dashed rgba(255, 255, 255, .75);
+}
+
+.beat-button {
+  color: #24333a;
+  width: 24%;
+  padding: 20px 1rem;
+
+  &#D {
+    background-color: #8293a5;
+  }
+  &#F {
+    background-color: #8293a5;
+  }
+  &#J {
+    background-color: #8293a5;
+  }
+  &#K {
+    background-color: #8293a5;
+  }
 }

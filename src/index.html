@@ -4,17 +4,38 @@
 <head>
   <meta name="monetization" content="$coil.xrptipbot.com/jyIxkymhSX6s8aOZ6PyYSw">
   <meta name="viewport" content="width=device-width, user-scalable=no">
-  <title>[js13Kgames]</title>
+  <title>Get That Beat</title>
 </head>
 
-<body>
-  <input id="frequency" type="text" placeholder="Frequency" value="">
-  <div class="beat-button"><button id="b1">Beat One (D)</button></div>
-  <div class="beat-button"><button id="b2">Beat Two (F)</button></div>
-  <div class="beat-button"><button id="b3">Beat Three (J)</button></div>
-  <div class="beat-button"><button id="b4">Beat Four (K)</button></div>  
-  <div id="wrapper">
-    <canvas id="canvas" width="135" height="240"></canvas>
+<body id="body">
+  <div id="synth-wrapper">
+    <div id="synth-header">ATL-404</div>
+    <div id="game-wrapper">
+      <div id="lanes">
+        <div id="bass">
+          <div class="guide"></div>
+        </div>
+        <div id="kick">
+
+          <div class="guide"></div>
+        </div>
+        <div id="snare">
+
+          <div class="guide"></div>
+        </div>
+        <div id="hihat">
+
+          <div class="guide"></div>
+        </div>
+      </div>
+      <div id="zone"></div>
+    </div>
+    <div id="beat-button-wrapper">
+      <div class="beat-button" id="D">D</div>
+      <div class="beat-button" id="F">F</div>
+      <div class="beat-button" id="J">J</div>
+      <div class="beat-button" id="K">K</div>
+    </div>
   </div>
   <div id="time"></div>
 </body>
