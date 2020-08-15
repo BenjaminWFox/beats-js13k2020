@@ -1,33 +1,75 @@
 import './main.scss'
-import gameImage from './assets/images/sprites/game-image.png'
+import Kick from './sound/kick'
+import Snare from './sound/snare'
+import HiHat from './sound/hihat'
 
-console.log('Hello World')
+const timeEl = document.getElementById('time')
 
-const testESNext = (Math.random() > .5 ? 'ES2020Working' : null)
-const testESNext2 = {
-  child: {
-    node: null,
-  },
+const AudioContext = window.AudioContext || window.webkitAudioContext
+
+const ctx = new AudioContext()
+
+const kick = new Kick(ctx)
+const snare = new Snare(ctx)
+const hihat = new HiHat(ctx)
+
+const btn1 = document.getElementById('b1')
+const btn2 = document.getElementById('b2')
+const btn3 = document.getElementById('b3')
+const btn4 = document.getElementById('b4')
+
+let time = 0
+
+function repeatOften() {
+  time += 1
+  timeEl.innerHTML = ctx.currentTime
+
+  if (time % 100 === 0) {
+    // console.log('Fire')
+    // playBass()
+  }
+
+  // Do whatever
+  requestAnimationFrame(repeatOften)
 }
 
-const method = () => {
-  console.log('Hello Method')
-}
+// requestAnimationFrame(repeatOften)
 
-method()
+btn1.addEventListener('click', (e) => {
+  kick.trigger(ctx.currentTime)
+  kick.trigger(ctx.currentTime)
+})
 
-console.log(testESNext ?? 'ES2020 Is Working')
-console.log(testESNext2?.child?.node?.other)
-try {
-  console.log(testESNext2?.child?.node.other)
-}
-catch (e) {
-  console.log('Caught the error', e.toString())
-}
+btn2.addEventListener('click', (e) => {
+  kick.trigger(ctx.currentTime)
+})
 
-// Using an imported image
-const imgEl = document.getElementById('jsImage')
-const image = document.createElement('img')
+btn3.addEventListener('click', (e) => {
+  snare.trigger(ctx.currentTime)
+})
 
-image.src = gameImage
-imgEl.appendChild(image)
+btn4.addEventListener('click', (e) => {
+  hihat.trigger(ctx.currentTime)
+})
+
+document.addEventListener('keydown', (e) => {
+  switch (event.key) {
+    case 'd':
+      kick.trigger(ctx.currentTime)
+      kick.trigger(ctx.currentTime)
+      break
+    case 'f':
+      kick.trigger(ctx.currentTime)
+      break
+    case 'j':
+      snare.trigger(ctx.currentTime)
+      break
+    case 'k':
+      // hihat2(ctx)
+      hihat.trigger(ctx.currentTime)
+      break
+    default:
+      return
+  }
+})
+
