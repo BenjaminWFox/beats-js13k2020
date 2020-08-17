@@ -3,6 +3,37 @@ import Bass from './sound/bass'
 import Kick from './sound/kick'
 import Snare from './sound/snare'
 import HiHat from './sound/hihat'
+import Ticker from './sound/ticker'
+import { calcFps } from './util'
+
+const TICK_EVERY = 16
+const FPS = 60
+const BPM = 120
+const TIME_PER_TICK = 60.0 / (TICK_EVERY / 4) / BPM
+const TIME_PER_RENDER = TIME_PER_TICK / (TICK_EVERY / 2)
+const COUNTS_PER_MEASURE = 16
+const SECTION_SIZE = (COUNTS_PER_MEASURE)
+let BOARD_HEIGHT
+let SECTION_HEIGHT
+let ZONE_TOP
+let ZONE_CHECK_BOTTOM
+let ZONE_CHECK_TOP
+let MOVE_SPEED
+let ZONE_CHECK_MEH_TOP
+let ZONE_CHECK_MEH_BOTTOM
+let ZONE_CHECK_OK_TOP
+let ZONE_CHECK_OK_BOTTOM
+let ZONE_CHECK_GOOD_TOP
+let ZONE_CHECK_GOOD_BOTTOM
+let ZONE_CHECK_PERFECT_TOP
+let ZONE_CHECK_PERFECT_BOTTOM
+
+const MeasureEvents = {
+  whole: 'whole',
+  half: 'half',
+  quarter: 'quarter',
+  sixteenth: 'sixteenth',
+}
 
 const AudioContext = window.AudioContext || window.webkitAudioContext
 const ctx = new AudioContext()
@@ -23,24 +54,283 @@ let kickLane
 let snareLane
 let hihatLane
 
-const timeEl = document.getElementById('time')
-let time = 0
+const fpsEl = document.getElementById('fps')
+const clockEl = document.getElementById('clock')
+
+const bassBeats = []
+const kickBeats = []
+const snareBeats = []
+const hihatBeats = []
+
+function BeatSprite(lane) {
+  this.parent = lane
+
+  this.y = -SECTION_HEIGHT
+  this.width = Math.floor(board.offsetHeight / SECTION_SIZE)
+  this.height = this.width
+
+  const containerEl = document.createElement('div')
+  const visualEl = document.createElement('div')
+
+  containerEl.classList.add('beat-container')
+  containerEl.style.width = convertPx(this.width)
+  containerEl.style.height = convertPx(this.height)
+  containerEl.style.top = convertPx(this.y)
+
+  visualEl.classList.add('beat-visual')
+
+  containerEl.appendChild(visualEl)
+
+  this.element = containerEl
+  this.parent.prepend(this.element)
+  this.move = function () {
+    console.log('Moving')
+    this.y += MOVE_SPEED
+
+    if (this.y > BOARD_HEIGHT) {
+      bassBeats.pop()
+      this.parent.removeChild(this.element)
+    }
+    else {
+      this.render()
+    }
+
+  }
+  this.render = () => {
+    this.element.style.top = convertPx(this.y)
+  }
+}
+
+function spawnBeat(lane) {
+  bassBeats.unshift(new BeatSprite(lane))
+}
+
+let currentTick = TIME_PER_TICK
+let currentRender = 0 // eslint-disable-line
 
 function gameLoop() {
-  time += 1
-  timeEl.innerHTML = ctx.currentTime
-
-  if (time % 100 === 0) {
-    // console.log('Fire')
-    // playBass()
+  // if (currentTick < ctx.currentTime - TIME_PER_RENDER) {
+  //   currentRender += TIME_PER_RENDER
+  //   console.log('RENDER', currentRender)
+  // }
+  if (currentTick < ctx.currentTime - TIME_PER_TICK) {
+    // console.log('TICK')
+    currentTick += TIME_PER_TICK
+    // console.log('Measure event:', MeasureEvents.sixteenth, currentTick)
+    if (currentTick % (TIME_PER_TICK * 2) === 0) {
+      // console.log('Measure event:', MeasureEvents.quarter, currentTick)
+    }
+    if (currentTick % (TIME_PER_TICK * 4) === 0) {
+      // console.log('Measure event:', MeasureEvents.half, currentTick)
+    }
+    if (currentTick % (TIME_PER_TICK * 8) === 0) {
+      // console.log('Measure event:', MeasureEvents.whole, currentTick)
+      if (bassBeats.length < 2) {
+        spawnBeat(bassLane)
+      }
+    }
   }
+
+  bassBeats.forEach((beat) => {
+    // console.log('beat/zone', beat.style.top, zone.style.top)
+    beat.move()
+  })
+
+  // const time = (Math.round(ctx.currentTime * 4) / 4).toFixed(2)
+  const time = ctx.currentTime.toFixed(2)
+
+  clockEl.innerHTML = time
 
   // Do whatever
   requestAnimationFrame(gameLoop)
 }
 
-// requestAnimationFrame(gameLoop)
+requestAnimationFrame(gameLoop)
 
+function checkCollision(laneArr) {
+  for (let i = laneArr.length; i > 0; i -= 1) {
+    const sI = i - 1
+    const sprite = laneArr[sI]
+    const sY = Math.floor(sprite.y)
+
+    if (sY >= ZONE_CHECK_BOTTOM) {
+      console.log('index', sI, 'too late')
+      continue
+    }
+    if (sY <= ZONE_CHECK_TOP) {
+      console.log('index', sI, 'too soon')
+      continue
+    }
+    if (sY < ZONE_CHECK_PERFECT_BOTTOM && sprite.y > ZONE_CHECK_PERFECT_TOP) {
+      console.log('... PERFECT ...')
+      continue
+    }
+    if (sY < ZONE_CHECK_GOOD_BOTTOM && sprite.y > ZONE_CHECK_GOOD_TOP) {
+      console.log('... GOOD ...')
+      continue
+    }
+    if (sY < ZONE_CHECK_OK_BOTTOM && sprite.y > ZONE_CHECK_OK_TOP) {
+      console.log('... OK ...')
+      continue
+    }
+    if (sY < ZONE_CHECK_BOTTOM && sprite.y > ZONE_CHECK_TOP) {
+      console.log('... MEH ...')
+      continue
+    }
+
+    console.log('Unaccounded for situation', sI)
+    console.log(sY)
+    console.log(ZONE_CHECK_TOP)
+    console.log(ZONE_CHECK_BOTTOM)
+    console.log(ZONE_CHECK_MEH_TOP)
+    console.log(ZONE_CHECK_MEH_BOTTOM)
+    console.log(ZONE_CHECK_OK_TOP)
+    console.log(ZONE_CHECK_OK_BOTTOM)
+    console.log(ZONE_CHECK_GOOD_TOP)
+    console.log(ZONE_CHECK_GOOD_BOTTOM)
+    console.log(ZONE_CHECK_PERFECT_TOP)
+    console.log(ZONE_CHECK_PERFECT_BOTTOM)
+    // if (sprite.y < )
+  }
+}
+
+const body = document.getElementById('body')
+// const synthWrapper = document.getElementById('synth-wrapper')
+// const synthHeader = document.getElementById('synth-header')
+// const gameWrapper = document.getElementById('game-wrapper')
+
+const SCREEN_WIDTH = window.innerWidth
+const SCREEN_HEIGHT = window.innerHeight
+let bodyWidth = SCREEN_WIDTH
+
+if ((SCREEN_WIDTH / SCREEN_HEIGHT > 12 / 16) || SCREEN_WIDTH > SCREEN_HEIGHT) {
+  bodyWidth = SCREEN_HEIGHT * (12 / 16)
+}
+
+const convertPx = (n) => `${n}px`
+
+function makeBeat(lane) {
+  const containerEl = document.createElement('div')
+  const visualEl = document.createElement('div')
+
+  containerEl.classList.add('beat-container')
+  containerEl.style.width = convertPx(Math.floor(board.offsetHeight / SECTION_SIZE))
+  containerEl.style.height = containerEl.style.width
+  containerEl.style.top = convertPx(Math.floor(board.offsetHeight / SECTION_SIZE) * (SECTION_SIZE - 2))
+
+  visualEl.classList.add('beat-visual')
+  containerEl.appendChild(visualEl)
+
+  const beat = new BeatSprite(
+    convertPx(Math.floor(board.offsetHeight / SECTION_SIZE) * (SECTION_SIZE - 2)),
+    convertPx(Math.floor(board.offsetHeight / SECTION_SIZE)),
+    containerEl,
+    lane,
+  )
+
+  return beat
+}
+
+const renderRows = () => {
+  for (let i = 0; i < COUNTS_PER_MEASURE; i += 1) {
+    const el = document.createElement('div')
+
+    el.style.position = 'absolute'
+    el.style.width = '100%'
+    el.style.height = convertPx(SECTION_HEIGHT)
+    el.style.top = convertPx(SECTION_HEIGHT * i)
+    el.style.backgroundColor = i % 2 === 0 ? 'rgba(255, 255, 255, .1)' : 'rgba(255, 255, 255, .05)'
+
+    board.appendChild(el)
+  }
+}
+
+function createDebugZones(zoneArr) {
+  const colors = ['red', 'orange', 'yellow', 'green', 'blue']
+
+  zoneArr.forEach(([top, bottom], i) => {
+    const el = document.createElement('div')
+
+    el.style.position = 'absolute'
+    el.style.width = '4px'
+    el.style.backgroundColor = colors[i]
+    el.style.top = convertPx(top)
+    el.style.left = convertPx(50 + (4 * (i + 1)))
+    el.style.height = convertPx(bottom - top)
+
+    board.appendChild(el)
+  })
+}
+
+const initGame = () => {
+  board = document.getElementById('game-wrapper')
+  zone = document.getElementById('zone')
+  bassLane = document.getElementById('bass')
+  kickLane = document.getElementById('kick')
+  snareLane = document.getElementById('snare')
+  hihatLane = document.getElementById('hihat')
+
+  BOARD_HEIGHT = board.offsetHeight
+  SECTION_HEIGHT = Math.floor(board.offsetHeight / SECTION_SIZE)
+  ZONE_TOP = Math.floor(BOARD_HEIGHT / SECTION_SIZE) * (SECTION_SIZE - 2)
+  MOVE_SPEED = SECTION_HEIGHT / (FPS * TIME_PER_TICK)
+
+  ZONE_CHECK_TOP = ZONE_TOP - SECTION_HEIGHT
+  ZONE_CHECK_BOTTOM = SECTION_HEIGHT * 15
+  // ZONE_CHECK_MEH_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
+  // ZONE_CHECK_MEH_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
+  ZONE_CHECK_OK_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
+  ZONE_CHECK_OK_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
+  ZONE_CHECK_GOOD_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 2.5)))
+  ZONE_CHECK_GOOD_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 2.5)))
+  ZONE_CHECK_PERFECT_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 5)))
+  ZONE_CHECK_PERFECT_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 5)))
+
+  createDebugZones([
+    [ZONE_CHECK_TOP, ZONE_CHECK_BOTTOM],
+    // [ZONE_CHECK_MEH_TOP, ZONE_CHECK_MEH_BOTTOM],
+    [ZONE_CHECK_OK_TOP, ZONE_CHECK_OK_BOTTOM],
+    [ZONE_CHECK_GOOD_TOP, ZONE_CHECK_GOOD_BOTTOM],
+    [ZONE_CHECK_PERFECT_TOP, ZONE_CHECK_PERFECT_BOTTOM],
+  ])
+
+  renderRows()
+
+  board.style.height = convertPx(BOARD_HEIGHT)
+  zone.style.height = convertPx(SECTION_HEIGHT)
+
+  // Create the 'hit' zone one 'section' above the boattom of the board
+  zone.style.top = convertPx(ZONE_TOP)
+
+  // bassLane.style.top = convertPx(0 - SECTION_HEIGHT)
+  // kickLane.style.top = convertPx(0 - SECTION_HEIGHT)
+  // snareLane.style.top = convertPx(0 - SECTION_HEIGHT)
+  // hihatLane.style.top = convertPx(0 - SECTION_HEIGHT)
+
+  // lanes.style.top = convertPx(0 - SECTION_HEIGHT)
+
+  // bassLane.appendChild(makeBeat())
+  // spawnBeat(bassLane)
+}
+
+window.addEventListener('load', () => {
+  console.log('-- window _ load -- ddd')
+
+  window.addEventListener('keydown', handleKeyboardControl)
+
+  body.style.width = `${bodyWidth}px`
+  body.style.height = `${SCREEN_HEIGHT}px`
+
+  initGame()
+
+  // console.log('Creating new ticker')
+  // ticker = new Ticker(ctx, onTick, onUpdate)
+  // ticker.start()
+})
+
+/**
+ * ******** CONTORLS ********
+ */
 D.addEventListener('click', (e) => {
   bass.trigger(ctx.currentTime)
 })
@@ -54,6 +344,7 @@ K.addEventListener('click', (e) => {
   hihat.trigger(ctx.currentTime)
 })
 
+// Will be required for touch events on mobile:
 // D.addEventListener('touchend', (e) => {
 //   bass.trigger(ctx.currentTime)
 // })
@@ -70,74 +361,22 @@ K.addEventListener('click', (e) => {
 function handleKeyboardControl(e) {
   switch (event.code) {
     case 'KeyD':
-      console.log(event.code)
       bass.trigger(ctx.currentTime)
+      checkCollision(bassBeats)
       break
     case 'KeyF':
-      console.log(event.code)
       kick.trigger(ctx.currentTime)
+      checkCollision(kickBeats)
       break
     case 'KeyJ':
-      console.log(event.code)
       snare.trigger(ctx.currentTime)
+      checkCollision(snareBeats)
       break
     case 'KeyK':
-      console.log(event.code)
-      // hihat2(ctx)
       hihat.trigger(ctx.currentTime)
+      checkCollision(hihatBeats)
       break
     default:
       return
   }
 }
-
-const body = document.getElementById('body')
-// const synthWrapper = document.getElementById('synth-wrapper')
-// const synthHeader = document.getElementById('synth-header')
-// const gameWrapper = document.getElementById('game-wrapper')
-
-const SCREEN_WIDTH = window.innerWidth
-const SCREEN_HEIGHT = window.innerHeight
-let bodyWidth = SCREEN_WIDTH
-
-if ((SCREEN_WIDTH / SCREEN_HEIGHT > 12 / 16) || SCREEN_WIDTH > SCREEN_HEIGHT) {
-  bodyWidth = SCREEN_HEIGHT * (12 / 16)
-}
-const convertPx = (n) => `${n}px`
-const makeBeat = () => {
-  const el = document.createElement('div')
-
-  el.classList.add('beat')
-  el.style.width = convertPx(board.offsetHeight / 10)
-  el.style.height = el.style.width
-
-  console.log(zone.style.height)
-
-  return el
-}
-const initGame = () => {
-  board = document.getElementById('game-wrapper')
-  zone = document.getElementById('zone')
-  bassLane = document.getElementById('bass')
-  kickLane = document.getElementById('kick')
-  snareLane = document.getElementById('snare')
-  hihatLane = document.getElementById('hihat')
-
-  console.log(board.offsetHeight)
-  board.style.height = convertPx(board.offsetHeight / 10)
-  zone.style.height = board.style.height
-
-  // bassLane.appendChild(makeBeat())
-  bassLane.prepend(makeBeat())
-}
-
-window.addEventListener('load', () => {
-  console.log('-- window _ load --')
-
-  window.addEventListener('keydown', handleKeyboardControl)
-
-  body.style.width = `${bodyWidth}px`
-  body.style.height = `${SCREEN_HEIGHT}px`
-
-  initGame()
-})

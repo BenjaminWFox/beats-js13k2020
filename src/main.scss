@@ -34,6 +34,7 @@ body {
 
 #synth-header {
   font-size: 3rem;
+  text-align: left;
 }
 
 #game-wrapper {
@@ -42,6 +43,9 @@ body {
   width: 100%;
   // height: // set in JS
   flex-grow: 1;
+  /* - Transform!
+  transform: perspective(110px) rotateX(15deg) translateY(-300px);
+  */
 }
 
 #beat-button-wrapper {
@@ -65,13 +69,6 @@ body {
     justify-content: center;
     position: relative;
 
-    & .beat {
-      position: absolute;
-      background-color: #ffffff;
-      // border-radius: 100px;
-      bottom: 50px;
-    }
-
     & .guide {
       width: 1px;
       height: 100%;
@@ -80,25 +77,41 @@ body {
   }
 }
 
+.beat-container {
+  position: absolute;
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px dashed red;
+}
+
+.beat-visual {
+  width: 90%;
+  height: 90%;
+  background-color: blue;
+  border-radius: 100px;
+}
+
 #bass {
-  // transform: skew(-4deg, 4deg);
-  // & .beat {
-  //   transform: skew(4deg, -4deg);
-  // }
+  border: 1px dotted rgba(255, 255, 255, .25);
 }
 #kick {
+  border: 1px dotted rgba(255, 255, 255, .25);
   // transform: skew(-2deg, 2deg);
   // & .beat {
   //   transform: skew(2deg, -2deg);
   // }
 }
 #snare { 
+  border: 1px dotted rgba(255, 255, 255, .25);
   // transform: skew(2deg, -2deg);
   // & .beat {
   //   transform: skew(-2deg, 2deg);
   // }
 }
 #hihat { 
+  border: 1px dotted rgba(255, 255, 255, .25);
   // transform: skew(4deg, -4deg);
   // & .beat {
   //   transform: skew(-4deg, 4deg);
@@ -110,9 +123,9 @@ body {
   bottom: 50px;
   height: 80px;
   width: 100%;
-  background-color: rgba(255, 255, 255, .25);
-  // border-bottom: 2px dashed rgba(255, 255, 255, .75);
-  // border-top: 2px dashed rgba(255, 255, 255, .75);
+  // background-color: rgba(255, 255, 255, .25);
+  border-bottom: 2px dashed rgba(255, 255, 255, .75);
+  border-top: 2px dashed rgba(255, 255, 255, .75);
 }
 
 .beat-button {
