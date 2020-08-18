@@ -3,6 +3,7 @@ import Bass from './sound/bass'
 import Kick from './sound/kick'
 import Snare from './sound/snare'
 import HiHat from './sound/hihat'
+import l1 from './assets/images/levels/heartbeat3.png'
 import Ticker from './sound/ticker'
 import { calcFps } from './util'
 
@@ -35,6 +36,40 @@ const MeasureEvents = {
   sixteenth: 'sixteenth',
 }
 
+const levelData = {
+  0: [],
+  1: [],
+  2: [],
+  3: [],
+}
+
+const canvas = document.getElementById('body').appendChild(document.createElement('canvas'))
+const cvtx = canvas.getContext('2d')
+const level = new Image()
+const levelHeight = 4
+const levelLength = 176
+
+let isLevelLoaded = false
+
+level.src = l1
+level.onload = () => {
+  cvtx.drawImage(level, 0, 0)
+
+  for (let i = 0; i < levelHeight; i += 1) {
+    for (let j = 0; j < levelLength; j += 1) {
+      const result = cvtx.getImageData(j, i, 1, 1).data[0] === 0 ? 0 : null
+
+      console.log(result)
+
+      levelData[i].push(result)
+    }
+  }
+  console.log(levelData[0])
+  console.log(levelData[1])
+
+  isLevelLoaded = true
+}
+
 const AudioContext = window.AudioContext || window.webkitAudioContext
 const ctx = new AudioContext()
 const bass = new Bass(ctx)
@@ -53,14 +88,13 @@ let bassLane
 let kickLane
 let snareLane
 let hihatLane
-
-const fpsEl = document.getElementById('fps')
-const clockEl = document.getElementById('clock')
-
 const bassBeats = []
 const kickBeats = []
 const snareBeats = []
 const hihatBeats = []
+
+const fpsEl = document.getElementById('fps')
+const clockEl = document.getElementById('clock')
 
 function BeatSprite(lane) {
   this.parent = lane
@@ -84,10 +118,10 @@ function BeatSprite(lane) {
   this.element = containerEl
   this.parent.prepend(this.element)
   this.move = function () {
-    console.log('Moving')
     this.y += MOVE_SPEED
 
     if (this.y > BOARD_HEIGHT) {
+      // TODO: Generalize all of this. Too much hard-coded bass beats!
       bassBeats.pop()
       this.parent.removeChild(this.element)
     }
@@ -101,11 +135,13 @@ function BeatSprite(lane) {
   }
 }
 
-function spawnBeat(lane) {
-  bassBeats.unshift(new BeatSprite(lane))
+function spawnBeat(lane, type) {
+  type.unshift(new BeatSprite(lane))
 }
 
 let currentTick = TIME_PER_TICK
+let measureBeat = 1
+let levelIndex = 0
 let currentRender = 0 // eslint-disable-line
 
 function gameLoop() {
@@ -114,9 +150,17 @@ function gameLoop() {
   //   console.log('RENDER', currentRender)
   // }
   if (currentTick < ctx.currentTime - TIME_PER_TICK) {
-    // console.log('TICK')
     currentTick += TIME_PER_TICK
-    // console.log('Measure event:', MeasureEvents.sixteenth, currentTick)
+
+    Object.keys(levelData).forEach((key) => {
+      if (levelData[key][levelIndex] !== null) {
+        const spawnIn = parseInt(key, 10) === 0 ? bassLane : parseInt(key, 10) === 1 ? kickLane : parseInt(key, 10) === 2 ? snareLane : hihatLane
+        const spawnType = parseInt(key, 10) === 0 ? bassBeats : parseInt(key, 10) === 1 ? kickBeats : parseInt(key, 10) === 2 ? snareBeats : hihatBeats
+
+        spawnBeat(spawnIn, spawnType)
+      }
+    })
+
     if (currentTick % (TIME_PER_TICK * 2) === 0) {
       // console.log('Measure event:', MeasureEvents.quarter, currentTick)
     }
@@ -125,13 +169,23 @@ function gameLoop() {
     }
     if (currentTick % (TIME_PER_TICK * 8) === 0) {
       // console.log('Measure event:', MeasureEvents.whole, currentTick)
-      if (bassBeats.length < 2) {
-        spawnBeat(bassLane)
-      }
+      // if (bassBeats.length < 2) {
+      //   spawnBeat(bassLane)
+      // }
+    }
+
+    measureBeat += measureBeat === 16 ? -15 : 1
+    levelIndex += 1
+    if (levelIndex === levelData[0].length) {
+      levelIndex -= 17
     }
   }
 
   bassBeats.forEach((beat) => {
+    // console.log('beat/zone', beat.style.top, zone.style.top)
+    beat.move()
+  })
+  kickBeats.forEach((beat) => {
     // console.log('beat/zone', beat.style.top, zone.style.top)
     beat.move()
   })
@@ -145,7 +199,17 @@ function gameLoop() {
   requestAnimationFrame(gameLoop)
 }
 
-requestAnimationFrame(gameLoop)
+function start() {
+  if (isLevelLoaded) {
+    console.log('starting...')
+    requestAnimationFrame(gameLoop)
+  }
+  else {
+    console.log('loading...')
+    setTimeout(start, .5)
+  }
+}
+start()
 
 function checkCollision(laneArr) {
   for (let i = laneArr.length; i > 0; i -= 1) {
