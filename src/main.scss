@@ -89,28 +89,32 @@ body {
 .beat-visual {
   width: 90%;
   height: 90%;
-  background-color: blue;
   border-radius: 100px;
 }
 
-#bass {
+.bass-beat {
+  background-color: blue;
   border: 1px dotted rgba(255, 255, 255, .25);
 }
-#kick {
+
+.kick-beat {
+  background-color: green;
   border: 1px dotted rgba(255, 255, 255, .25);
   // transform: skew(-2deg, 2deg);
   // & .beat {
   //   transform: skew(2deg, -2deg);
   // }
 }
-#snare { 
+.snare-beat { 
+  background-color: yellow;
   border: 1px dotted rgba(255, 255, 255, .25);
   // transform: skew(2deg, -2deg);
   // & .beat {
   //   transform: skew(-2deg, 2deg);
   // }
 }
-#hihat { 
+.hihat-beat { 
+  background-color: red;
   border: 1px dotted rgba(255, 255, 255, .25);
   // transform: skew(4deg, -4deg);
   // & .beat {

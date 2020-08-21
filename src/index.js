@@ -8,6 +8,7 @@ import HiHat from './sound/hihat'
 import l0 from './assets/images/levels/l0.png'
 import l1 from './assets/images/levels/l1.png'
 import l2 from './assets/images/levels/l2.png'
+import l3 from './assets/images/levels/l3.png'
 /* #endregion */
 
 /* #region ******** ALIASES & CONVENIENCE ******** */
@@ -104,6 +105,7 @@ function BeatSprite(lane) {
   containerEl.style.top = convertPx(this.y)
 
   visualEl.classList.add('beat-visual')
+  visualEl.classList.add(`${this.parent.name}-beat`)
 
   containerEl.appendChild(visualEl)
 
@@ -139,6 +141,7 @@ const getNewLanesArr = () => ([
   {
     id: 0,
     name: 'bass',
+    color: 'purple',
     element: undefined,
     spawning: false,
     instrument: bass,
@@ -148,6 +151,7 @@ const getNewLanesArr = () => ([
   {
     id: 1,
     name: 'kick',
+    color: 'blue',
     element: undefined,
     spawning: false,
     instrument: kick,
@@ -157,6 +161,7 @@ const getNewLanesArr = () => ([
   {
     id: 2,
     name: 'snare',
+    color: 'yellow',
     element: undefined,
     spawning: false,
     instrument: snare,
@@ -166,6 +171,7 @@ const getNewLanesArr = () => ([
   {
     id: 3,
     name: 'hihat',
+    color: 'red',
     element: undefined,
     spawning: false,
     instrument: hihat,
@@ -196,7 +202,7 @@ function addLaneElements() {
 let loadedLevels = 0
 let currentLevelNum
 let currentLevel
-const levels = [l0, l1, l2]
+const levels = [l0, l1, l2, l3]
 
 function parseLevels() {
   levels.forEach((lvl) => {
@@ -497,7 +503,7 @@ function initGame() {
 
   // bassLane.appendChild(makeBeat())
   // spawnBeat(bassLane)
-  startGame(2)
+  startGame(3)
 }
 
 function addEventListeners() {
