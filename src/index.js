@@ -10,6 +10,7 @@ import l1 from './assets/images/levels/l1.png'
 import l2 from './assets/images/levels/l2.png'
 import l3 from './assets/images/levels/l3.png'
 import l4 from './assets/images/levels/l4.png'
+import l5 from './assets/images/levels/l5.png'
 /* #endregion */
 
 /* #region ******** ALIASES & CONVENIENCE ******** */
@@ -39,6 +40,7 @@ let ZONE_TOP
 let ZONE_CHECK_BOTTOM
 let ZONE_CHECK_TOP
 let MOVE_SPEED
+let MOVE_SPEED_SMOOTH
 let ZONE_CHECK_MEH_TOP
 let ZONE_CHECK_MEH_BOTTOM
 let ZONE_CHECK_OK_TOP
@@ -54,6 +56,21 @@ let bassX
 let kickX
 let snareX
 let hihatX
+const result = {
+  perfect: undefined,
+  good: undefined,
+  ok: undefined,
+  meh: undefined,
+  bad: undefined,
+}
+
+function logValues() {
+  console.log('*** Values ***')
+  console.log(' - TIME_PER_TICK', TIME_PER_TICK)
+  console.log(' - MOVE_SPEED', MOVE_SPEED)
+  console.log(' - SECTION_HEIGHT', SECTION_HEIGHT)
+  console.log(' - HALF_HEIGHT', HALF_SECTION)
+}
 
 if ((SCREEN_WIDTH / SCREEN_HEIGHT > 12 / 16) || SCREEN_WIDTH > SCREEN_HEIGHT) {
   bodyWidth = SCREEN_HEIGHT * (12 / 16)
@@ -72,6 +89,8 @@ let canvas
 let ctx
 let bgCanvas
 let bgCtx
+let resCanvas
+let resCtx
 let lCanvas // level canvas
 let lCtx // level context
 let body
@@ -117,45 +136,88 @@ const zzfxX = aCtx
 const zzfxM = (f, n, o, t = 125) => { let z, e, l, r, g, h, x, a, u, c, d, i, m, p, G, M, R = [], b = [], j = [], k = 0, q = 1, s = {}, v = zzfxR / t * 60 >> 2; for (; q; k++)R = [q = a = d = m = 0], o.map((t, d) => { for (x = n[t][k] || [0, 0, 0], q |= !!n[t][k], G = m + (n[t][0].length - 2 - !a) * v, e = 2, r = m; e < x.length + (d == o.length - 1); a = ++e) { for (g = x[e], u = c != (x[0] || 0) | g | 0, l = 0; l < v && a; l++ > v - 99 && u ? i += (i < 1) / 99 : 0)h = (1 - i) * R[p++] / 2 || 0, b[r] = (b[r] || 0) + h * M - h, j[r] = (j[r++] || 0) + h * M + h; g && (i = g % 1, M = x[1] || 0, (g |= 0) && (R = s[[c = x[p = 0] || 0, g]] = s[[c, g]] || (z = [...f[c]], z[2] *= 2 ** ((g - 12) / 12), zzfxG(...z)))) } m = G }); return [b, j] }
 
 
+// const getSong = () => (
+//   [
+//   [
+//     [1, 0, 50],
+//     [1, 0, 100],
+//     [1, 0, 150],
+//     [1, 0, 200],
+//     [1, 0, 250],
+//     [1, 0, 300],
+//     [1, 0, 350],
+//     [1, 0, 400],
+//   ],
+//   [
+//     [
+//       [7, 0, ,,, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+//       [3, 0, ,,, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
+//       // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+//     ],
+//     [
+//       [7, 0, 19, 19, 23, 19, 26, 19, 26, 24, 17, 17, 21, 17, 24, 17, 24, 23],
+//       [7, 0, 0, 7, 7, 11, 7, 14, 7, 14, 12, 5, 5, 9, 5, 12, 5, 12, 11],
+//       // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+//       // [5, 0, 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18, 14],
+//       // [4, 0, , 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18],
+//     ],
+//     [
+//       [7, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+//       [3, 0, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
+//       // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+//     ],
+//   ],
+//   [
+//     0,
+//     1,
+//   ],
+//   60,
+// ])
+// hey ya
 const getSong = () => (
   [
-  [
-    [1, 0, 50],
-    [1, 0, 100],
-    [1, 0, 150],
-    [1, 0, 200],
-    [1, 0, 250],
-    [1, 0, 300],
-    [1, 0, 350],
-    [1, 0, 400],
-  ],
-  [
     [
-      [7, 0, ,,, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-      [3, 0, ,,, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
-      // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+      [1, 0, 50],
+      [1, 0, 100],
+      [1, 0, 150],
+      [1, 0, 200],
+      [1, 0, 250],
+      [1, 0, 300],
+      [1, 0, 350],
+      [1, 0, 400],
     ],
     [
-      [7, 0, 19, 19, 23, 19, 26, 19, 26, 24, 17, 17, 21, 17, 24, 17, 24, 23],
-      [7, 0, 0, 7, 7, 11, 7, 14, 7, 14, 12, 5, 5, 9, 5, 12, 5, 12, 11],
-      // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-      // [5, 0, 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18, 14],
-      // [4, 0, , 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18],
+      [
+        [7, 0, ,,, 16, 16, 14, 12, 11, , 11, 11, 12, 11, 11, 9, 7, 9, 11, 11],
+        [7, 0, ,,, , 4, 2, 0, -1, , -1, -1, 0, -1, -1, -3, -5, -3, -1, -1],
+        // [3, 0, ,,, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
+        // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+      ],
+      [
+        [7, 0, 12, 11, 11, 9, 7, 9, 11, , 12, 12, 11, 11, 11, 11, , ],
+        [7, 0, , 0, -1, -1, -3, -5, -3, -1, , 0, 0, -1, -1, -1, -1, ],
+        // [7, 0, 0, 7, 7, 11, 7, 14, 7, 14, 12, 5, 5, 9, 5, 12, 5, 12, 11],
+        // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+        // [5, 0, 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18, 14],
+        // [4, 0, , 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18],
+      ],
+      [
+        [7, 0, ,,, 16, 16, 14, 12, 11, , 11, 11, 12, 11, , 9, 7, 9, 11, 11],
+        [7, 0, ,,, , 4, 2, 0, -1, , -1, -1, 0, -1, -1, -2, -4, -2, -1, -1],
+        // [3, 0, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
+        // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+      ],
     ],
     [
-      [7, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-      [3, 0, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
-      // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+      0,
+      1,
     ],
-  ],
-  [
-    0,
-    1,
-  ],
-  60,
-])
+    60,
+  ]
+)
 let song
 let songData
+let songAudio
 /* eslint-enable */
 
 /* #endregion */
@@ -170,9 +232,23 @@ function BeatSprite(lane) {
   this.height = this.width
   this.played = false
   this.image = lane.beatImage
+  this.zone = -1
+  this.beat = undefined
+  this.hit = false
 
-  this.move = function () {
+  this.move = function (measureBeat, totalBeats) {
+    if (!this.beat) {
+      this.beat = totalBeats
+    }
     this.y += MOVE_SPEED
+
+    if (this.beat < totalBeats) {
+      this.zone += 1
+      this.beat = totalBeats
+      this.y = SECTION_HEIGHT * this.zone
+    }
+
+    console.log(measureBeat)
 
     if (this.y > BOARD_HEIGHT) {
       this.parent.beats.pop()
@@ -180,10 +256,10 @@ function BeatSprite(lane) {
     else {
       this.render()
     }
-    if (!this.played && this.y > ZONE_TOP) {
-      this.parent.play()
-      this.played = true
-    }
+    // if (!this.played && this.y > ZONE_TOP) {
+    //   this.parent.play()
+    //   this.played = true
+    // }
   }
   this.render = () => {
     // this.element.style.top = convertPx(this.y)
@@ -285,48 +361,68 @@ let lanesO
 /* #region ******** COLLISION ******** */
 
 function checkCollision(lane) {
+  if (!lane.beats.length) {
+    resCtx.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+  }
+  let didHit = false
+
   for (let i = lane.beats.length; i > 0; i -= 1) {
     const sI = i - 1
     const sprite = lane.beats[sI]
     const sY = Math.floor(sprite.y)
 
-    if (sY >= ZONE_CHECK_BOTTOM) {
-      // console.log('index', sI, 'too late')
-      continue
-    }
-    if (sY <= ZONE_CHECK_TOP) {
-      // console.log('index', sI, 'too soon')
-      continue
-    }
-    if (sY < ZONE_CHECK_PERFECT_BOTTOM && sprite.y > ZONE_CHECK_PERFECT_TOP) {
-      // console.log('... PERFECT ...')
-      continue
-    }
-    if (sY < ZONE_CHECK_GOOD_BOTTOM && sprite.y > ZONE_CHECK_GOOD_TOP) {
-      // console.log('... GOOD ...')
-      continue
-    }
-    if (sY < ZONE_CHECK_OK_BOTTOM && sprite.y > ZONE_CHECK_OK_TOP) {
-      // console.log('... OK ...')
-      continue
-    }
-    if (sY < ZONE_CHECK_BOTTOM && sprite.y > ZONE_CHECK_TOP) {
-      // console.log('... MEH ...')
-      continue
-    }
+    if (!sprite.hit) {
+      if (sY >= ZONE_CHECK_BOTTOM) {
+        // console.log('index', sI, 'too late')
+        // resCtx.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+        // continue
 
-    // console.log('Unaccounded for situation', sI)
-    // console.log(sY)
-    // console.log(ZONE_CHECK_TOP)
-    // console.log(ZONE_CHECK_BOTTOM)
-    // console.log(ZONE_CHECK_MEH_TOP)
-    // console.log(ZONE_CHECK_MEH_BOTTOM)
-    // console.log(ZONE_CHECK_OK_TOP)
-    // console.log(ZONE_CHECK_OK_BOTTOM)
-    // console.log(ZONE_CHECK_GOOD_TOP)
-    // console.log(ZONE_CHECK_GOOD_BOTTOM)
-    // console.log(ZONE_CHECK_PERFECT_TOP)
-    // console.log(ZONE_CHECK_PERFECT_BOTTOM)
+        // // This sprite was MISSED
+        // Decrement the scorre/add a strike/whatever
+        sprite.hit = true
+        didHit = true
+
+        continue
+      }
+      if (sY <= ZONE_CHECK_TOP) {
+      // console.log('index', sI, 'too soon')
+      // resCtx.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+        continue
+      // Shouldn't do anything about this one - just know that it will impac the score somehow.
+      }
+      if (sY < ZONE_CHECK_PERFECT_BOTTOM && sprite.y > ZONE_CHECK_PERFECT_TOP) {
+      // console.log('... PERFECT ...')
+        resCtx.drawImage(result.perfect, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+        sprite.hit = true
+        didHit = true
+        continue
+      }
+      if (sY < ZONE_CHECK_GOOD_BOTTOM && sprite.y > ZONE_CHECK_GOOD_TOP) {
+      // console.log('... GOOD ...')
+        resCtx.drawImage(result.good, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+        sprite.hit = true
+        didHit = true
+        continue
+      }
+      if (sY < ZONE_CHECK_OK_BOTTOM && sprite.y > ZONE_CHECK_OK_TOP) {
+      // console.log('... OK ...')
+        resCtx.drawImage(result.ok, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+        sprite.hit = true
+        didHit = true
+        continue
+      }
+      if (sY < ZONE_CHECK_BOTTOM && sprite.y > ZONE_CHECK_TOP) {
+      // console.log('... MEH ...')
+        resCtx.drawImage(result.meh, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+        sprite.hit = true
+        didHit = true
+        continue
+      }
+    }
+  }
+
+  if (!didHit) {
+    resCtx.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
   }
 }
 
@@ -337,7 +433,7 @@ function checkCollision(lane) {
 let loadedLevels = 0
 let currentLevelNum
 let currentLevel
-const levels = [l0, l1, l2, l3, l4]
+const levels = [l0, l1, l2, l3, l4, l5]
 
 function parseLevels() {
   levels.forEach((lvl, i) => {
@@ -389,8 +485,6 @@ function parseLevels() {
 
     lvl.songRepeats = Math.ceil(totalMeasures / 2)
 
-    console.log('Level repeats', i, lvl.songRepeats)
-
   })
   console.log('Levels complete', levels)
 }
@@ -430,10 +524,9 @@ let currentRender = 0 // eslint-disable-line
 function gameLoop() {
   // console.log('GAMELOOP')
   if (isPlaying) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
 
     if (currentTick < aCtx.currentTime - TIME_PER_TICK) {
-      console.log('TICK')
+      // console.log('TICK')
 
       currentTick += TIME_PER_TICK
 
@@ -443,7 +536,7 @@ function gameLoop() {
        * PLAY zzfxP song here
        */
           if (currentRender === 0) {
-            zzfxP(...songData)
+            songAudio = zzfxP(...songData)
 
             currentRender = 1
           }
@@ -492,9 +585,9 @@ function gameLoop() {
       totalBeats += 1
     }
 
-    moveBeats()
-
     // Do whatever
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    moveBeats()
     raf = requestAnimationFrame(gameLoop)
   }
 }
@@ -502,9 +595,8 @@ function gameLoop() {
 function moveBeats() {
   for (let i = 0; i < lanesA.length; i += 1) {
     for (let j = 0; j < lanesA[i].beats.length; j += 1) {
-      lanesA[i].beats[j].move()
+      lanesA[i].beats[j].move(measureBeat, totalBeats)
     }
-
     checkComplete(i)
   }
 }
@@ -546,8 +638,6 @@ function createDebugZones(zoneArr) {
   zoneArr.forEach(([top, bottom], i) => {
     const x = 50 + (4 * (i + 1))
     const y = top
-
-    console.log(x, y, bottom, top)
 
     bgCtx.fillStyle = colors[i]
     bgCtx.fillRect(x, y, 4, bottom - top)
@@ -601,6 +691,7 @@ function stopGame() {
   isPlaying = false
   cancelAnimationFrame(raf)
   console.log('Level Complete!')
+  songAudio.stop()
 }
 
 function spawnsComplete() {
@@ -619,13 +710,10 @@ function initGame() {
   BOARD_MID = BOARD_WIDTH / 2
   HALF_SECTION = Math.floor(SECTION_HEIGHT / 2)
 
-  console.log('Section/Half Height', SECTION_HEIGHT, HALF_SECTION)
-
   ZONE_HEIGHT = SECTION_HEIGHT * 1.5
-
-  ZONE_TOP = (Math.floor(BOARD_HEIGHT / SECTION_SIZE) * (SECTION_SIZE - 2)) - (SECTION_HEIGHT)
-  ZONE_CHECK_TOP = ZONE_TOP - SECTION_HEIGHT
-  ZONE_CHECK_BOTTOM = (SECTION_HEIGHT * 15) + (SECTION_HEIGHT / 2)
+  ZONE_TOP = (Math.floor(BOARD_HEIGHT / SECTION_SIZE) * (SECTION_SIZE - 2)) - (SECTION_HEIGHT * 1.5)
+  ZONE_CHECK_TOP = ZONE_TOP - (SECTION_HEIGHT / 1.5)
+  ZONE_CHECK_BOTTOM = (SECTION_HEIGHT * 15) - (SECTION_HEIGHT / 3)
   // ZONE_CHECK_MEH_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
   // ZONE_CHECK_MEH_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
   ZONE_CHECK_OK_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
@@ -654,6 +742,11 @@ function initGame() {
   hihatX = (BOARD_MID + (HALF_SECTION * 3))
 
   drawBackground()
+  result.perfect = getDrawResult('#17f5fc')
+  result.good = getDrawResult('#1cfe3f')
+  result.ok = getDrawResult('#f5ff3c')
+  result.meh = getDrawResult('#ff9827')
+  result.bad = getDrawResult('#fe1015')
   createDebugZones([
     [ZONE_CHECK_TOP, ZONE_CHECK_BOTTOM],
     // [ZONE_CHECK_MEH_TOP, ZONE_CHECK_MEH_BOTTOM],
@@ -664,8 +757,24 @@ function initGame() {
   lanesA = getNewLanesArr()
   lanesO = getNewLanesObj()
 
+  logValues()
+
   /* START GAME */
-  startGame(1)
+  startGame(3)
+}
+
+function getDrawResult(fillColor) {
+  const sCanvas = document.createElement('canvas')
+
+  sCanvas.width = SECTION_HEIGHT
+  sCanvas.height = SECTION_HEIGHT * 2
+
+  const sCtx = sCanvas.getContext('2d')
+
+  sCtx.fillStyle = fillColor
+  sCtx.fillRect(0, 0, sCanvas.width, sCanvas.height)
+
+  return sCanvas
 }
 
 function drawBackground() {
@@ -678,11 +787,21 @@ function drawBackground() {
   bgCanvas.style.transform = 'translateX(-50%)'
   bgCanvas.id = 'bgBoard'
   bgCanvas.classList.add('board')
+  resCanvas.height = BOARD_HEIGHT
+  resCanvas.width = BOARD_WIDTH
+  resCanvas.classList.add('board')
+  resCanvas.style.position = 'absolute'
+  resCanvas.style.top = 0
+  resCanvas.style.left = '50%'
+  resCanvas.style.transform = 'translateX(-50%)'
+  boardWrapper.prepend(resCanvas)
   boardWrapper.prepend(bgCanvas)
 
   // DRAW ZONE:
   bgCtx.fillStyle = 'rgb(0, 0, 0)'
-  bgCtx.fillRect(0, ZONE_TOP, BOARD_WIDTH, SECTION_HEIGHT * 1.5)
+  bgCtx.setLineDash([4, 6])
+  bgCtx.strokeRect(-2, ZONE_TOP, BOARD_WIDTH + 4, SECTION_HEIGHT * 1.5)
+
   // bass
   bgCtx.fillRect(bassX, 0, 1, BOARD_HEIGHT)
   // kick
@@ -691,6 +810,16 @@ function drawBackground() {
   bgCtx.fillRect(snareX, 0, 1, BOARD_HEIGHT)
   // hihat
   bgCtx.fillRect(hihatX, 0, 1, BOARD_HEIGHT)
+
+  // const half = hihatX - (hihatX / 2)
+
+  // bgCtx.stroke()
+  // bgCtx.fillRect(kickX - HALF_SECTION, BOARD_HEIGHT - (SECTION_HEIGHT * 2), SECTION_HEIGHT, SECTION_HEIGHT * 2)
+  // bgCtx.stroke()
+  // bgCtx.fillRect(snareX - HALF_SECTION, BOARD_HEIGHT - (SECTION_HEIGHT * 2), SECTION_HEIGHT, SECTION_HEIGHT * 2)
+  // bgCtx.stroke()
+  // bgCtx.fillRect(hihatX - HALF_SECTION, BOARD_HEIGHT - (SECTION_HEIGHT * 2), SECTION_HEIGHT, SECTION_HEIGHT * 2)
+  // bgCtx.stroke()
 }
 
 function addEventListeners() {
@@ -749,6 +878,8 @@ window.addEventListener('load', () => {
   ctx = canvas.getContext('2d')
   bgCanvas = document.createElement('canvas')
   bgCtx = bgCanvas.getContext('2d')
+  resCanvas = document.createElement('canvas')
+  resCtx = resCanvas.getContext('2d')
   body = $('#body')
   D = $('#D')
   F = $('#F')
