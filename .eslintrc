@@ -24,6 +24,10 @@
     "arrow-parens": [2, "always"],
     "no-console": ["error", { "allow": ["debug", "warn", "error", "log"]}],
     "camelcase": [0, {"properties":"never", "ignoreDestructuring": true} ],
+    "prefer-const": ["warn", {
+      "destructuring": "any",
+      "ignoreReadBeforeAssign": false
+  }],
     "padding-line-between-statements":[
       "error",
       { "blankLine": "always", "prev": ["const", "let", "var"], "next": "*"},
