@@ -1,6 +1,5 @@
 /* #region ******** IMPORTS ******** */
 
-import './main.scss'
 import { init as initKontra, clamp, Text, GameLoop, Scene } from 'kontra'
 import Bass from './sound/bass'
 import Kick from './sound/kick'

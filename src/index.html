@@ -1,35 +1,17 @@
 <!doctype html>
 <html>
-
 <head>
   <meta name="monetization" content="$coil.xrptipbot.com/jyIxkymhSX6s8aOZ6PyYSw">
   <meta name="viewport" content="width=device-width, user-scalable=no">
   <title>Get That Beat</title>
 </head>
-
-<body id="body">
-  <!-- <div id="menu" class="center">
-    <div id="title">BEATS NOT FOUND</div>
-    <div id="play" class="button">PLAY [P]</div>
-    <div id="skip" class="button">SKIP [S]</div>
-  </div>
-  <div id="intro" class="center">
-    <div id="loading">LOADING <i>.</i><i>.</i><i>.</i></div>
-    <div class="intro">GRAPHICS</div>
-    <div class="intro">ASSETS</div>
-    <div class="intro">MELODIES</div>
-    <div class="intro">BEATS</div>
-    <div class="intro">ERROR 404<br/>BEATS NOT FOUND</div>
-  </div> -->
-  <div id="game-wrapper">
-    <div id="game-bg-left" class="game-bg"></div>
+<body id="body" style="background-color:#060606;padding:0;margin:0;width:100vw;">
+  <div id="game-wrapper" style="position:relative;flex-grow:1;height:100%;display:flex;">
     <div id="board-wrapper">
-      <canvas id="bgBoard" class="board"></canvas>
-      <canvas id="board" class="board"></canvas>
+      <canvas id="bgBoard" style="background-color:#000;position:absolute;left:50%;transform:translateX(-50%);"></canvas>
+      <canvas id="board" style="position:absolute;left:50%;transform:translateX(-50%);"></canvas>
     </div>
-    <div id="game-bg-right" class="game-bg"></div>
   </div>
-  <canvas id="canvas" width="800" height="5"></canvas>
+  <canvas id="canvas" width="800" height="5" style="display:none;"></canvas>
 </body>
-
 </html>
