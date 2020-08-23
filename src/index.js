@@ -1,7 +1,7 @@
 /* #region ******** IMPORTS ******** */
 
 import './main.scss'
-import { init as initKontra, clamp, initPointer, Text, Sprite, GameLoop, Scene, Button } from 'kontra'
+import { init as initKontra, clamp, Text, GameLoop, Scene } from 'kontra'
 import Bass from './sound/bass'
 import Kick from './sound/kick'
 import Snare from './sound/snare'
@@ -204,8 +204,8 @@ const gl = () => GameLoop({
         if (titlescene.children[0].opacity < 1) {
           fadeIn(titlescene.children[0])
         }
-        if (titlescene.children[1].children[0].opacity < 1) {
-          fadeIn(titlescene.children[1].children[0])
+        if (titlescene.children[1].opacity < 1) {
+          fadeIn(titlescene.children[1])
         }
         break
       default:
@@ -277,8 +277,6 @@ function startGameWhenReady() {
 
 window.addEventListener('load', () => {
   ({ canvas, context } = initKontra('board'))
-
-  initPointer()
 
   // After the levels have all loaded (images)
   // it will call `initGame()`
@@ -358,56 +356,14 @@ function initScenes() {
         textAlign: 'center',
         font: gFont(60),
       }),
-      Button({
+      Text({
         x: CANVAS_MIDX,
         y: 500,
+        color: COLORS.good,
         anchor: { x: .5, y: .5 },
-        text: {
-          color: COLORS.good,
-          anchor: { x: .5, y: .5 },
-          text: 'SKIP\n[ space ]',
-          textAlign: 'center',
-          font: gFont(30),
-        },
-        padX: 20,
-        padY: 10,
-        render() {
-          // focused by keyboard
-          if (this.focused) {
-            this.context.setLineDash([5, 10])
-            this.context.lineWidth = 1
-            this.context.strokeStyle = COLORS.bad
-            this.context.strokeRect(0, 0, this.width, this.height)
-          }
-          // pressed by mouse, touch, or enter/space on keyboard
-          if (this.pressed) {
-            this.textNode.color = COLORS.ok
-          }
-          // hovered by mouse
-          else if (this.hovered) {
-            this.textNode.color = COLORS.meh
-            canvas.style.cursor = 'pointer'
-          }
-          else {
-            this.textNode.color = COLORS.good
-            canvas.style.cursor = 'initial'
-          }
-        },
-        onDown() {
-          switch (scene.id) {
-            case scenes.introscene:
-              console.log('Set title')
-              setScene(titlescene)
-              break
-            case scenes.titlescene:
-              console.log('Set title')
-              setScene(gamescene)
-              break
-            default:
-              console.log('none of the above')
-              break
-          }
-        },
+        text: 'SKIP\n[ space ]',
+        textAlign: 'center',
+        font: gFont(30),
       }),
     ],
     onShow() {
@@ -425,7 +381,7 @@ function initScenes() {
       this.children[0].color = COLORS.bad
       this.children[1].text = 'START\n[ space ]',
       this.children[0].opacity = 0
-      this.children[1].children[0].opacity = 0
+      this.children[1].opacity = 0
     },
     // render() {
     //   drawBackground()
