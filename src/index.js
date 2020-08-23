@@ -136,45 +136,45 @@ const zzfxX = aCtx
 const zzfxM = (f, n, o, t = 125) => { let z, e, l, r, g, h, x, a, u, c, d, i, m, p, G, M, R = [], b = [], j = [], k = 0, q = 1, s = {}, v = zzfxR / t * 60 >> 2; for (; q; k++)R = [q = a = d = m = 0], o.map((t, d) => { for (x = n[t][k] || [0, 0, 0], q |= !!n[t][k], G = m + (n[t][0].length - 2 - !a) * v, e = 2, r = m; e < x.length + (d == o.length - 1); a = ++e) { for (g = x[e], u = c != (x[0] || 0) | g | 0, l = 0; l < v && a; l++ > v - 99 && u ? i += (i < 1) / 99 : 0)h = (1 - i) * R[p++] / 2 || 0, b[r] = (b[r] || 0) + h * M - h, j[r] = (j[r++] || 0) + h * M + h; g && (i = g % 1, M = x[1] || 0, (g |= 0) && (R = s[[c = x[p = 0] || 0, g]] = s[[c, g]] || (z = [...f[c]], z[2] *= 2 ** ((g - 12) / 12), zzfxG(...z)))) } m = G }); return [b, j] }
 
 
-// const getSong = () => (
-//   [
-//   [
-//     [1, 0, 50],
-//     [1, 0, 100],
-//     [1, 0, 150],
-//     [1, 0, 200],
-//     [1, 0, 250],
-//     [1, 0, 300],
-//     [1, 0, 350],
-//     [1, 0, 400],
-//   ],
-//   [
-//     [
-//       [7, 0, ,,, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-//       [3, 0, ,,, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
-//       // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-//     ],
-//     [
-//       [7, 0, 19, 19, 23, 19, 26, 19, 26, 24, 17, 17, 21, 17, 24, 17, 24, 23],
-//       [7, 0, 0, 7, 7, 11, 7, 14, 7, 14, 12, 5, 5, 9, 5, 12, 5, 12, 11],
-//       // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-//       // [5, 0, 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18, 14],
-//       // [4, 0, , 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18],
-//     ],
-//     [
-//       [7, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-//       [3, 0, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
-//       // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-//     ],
-//   ],
-//   [
-//     0,
-//     1,
-//   ],
-//   60,
-// ])
+const getSong0 = () => (
+  [
+  [
+    [1, 0, 50],
+    [1, 0, 100],
+    [1, 0, 150],
+    [1, 0, 200],
+    [1, 0, 250],
+    [1, 0, 300],
+    [1, 0, 350],
+    [1, 0, 400],
+  ],
+  [
+    [
+      [7, 0, ,,, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+      [3, 0, ,,, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
+      // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+    ],
+    [
+      [7, 0, 19, 19, 23, 19, 26, 19, 26, 24, 17, 17, 21, 17, 24, 17, 24, 23],
+      [7, 0, 0, 7, 7, 11, 7, 14, 7, 14, 12, 5, 5, 9, 5, 12, 5, 12, 11],
+      // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+      // [5, 0, 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18, 14],
+      // [4, 0, , 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18],
+    ],
+    [
+      [7, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+      [3, 0, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
+      // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+    ],
+  ],
+  [
+    0,
+    1,
+  ],
+  60,
+])
 // hey ya
-const getSong = () => (
+const getSong1 = () => (
   [
     [
       [1, 0, 50],
@@ -302,7 +302,7 @@ const getNewLanesArr = () => ([
     id: 0,
     name: 'bass',
     color: 'purple',
-    beatImage: getBeatImage('blue', 'black', true),
+    beatImage: getBeatImage('#0ff0fc', 'black', true),
     x: bassX,
     drawX: bassX - HALF_SECTION,
     spawning: false,
@@ -314,7 +314,7 @@ const getNewLanesArr = () => ([
     id: 1,
     name: 'kick',
     color: 'blue',
-    beatImage: getBeatImage('green', 'black', true),
+    beatImage: getBeatImage('#21fc0d', 'black', true),
     x: kickX,
     drawX: kickX - HALF_SECTION,
     spawning: false,
@@ -326,7 +326,7 @@ const getNewLanesArr = () => ([
     id: 2,
     name: 'snare',
     color: 'yellow',
-    beatImage: getBeatImage('yellow', 'black', true),
+    beatImage: getBeatImage('#cfff04', 'black', true),
     x: snareX,
     drawX: snareX - HALF_SECTION,
     spawning: false,
@@ -338,7 +338,7 @@ const getNewLanesArr = () => ([
     id: 3,
     name: 'hihat',
     color: 'red',
-    beatImage: getBeatImage('red', 'black', true),
+    beatImage: getBeatImage('#ff0490', 'black', true),
     x: hihatX,
     drawX: hihatX - HALF_SECTION,
     spawning: false,
@@ -618,7 +618,7 @@ function checkComplete(i) {
 /* #endregion */
 
 /* #region ******** DEBUG ******** */
-const renderRows = () => {
+const drawRows = () => {
   for (let i = 0; i < COUNTS_PER_MEASURE; i += 1) {
     const el = document.createElement('div')
 
@@ -632,7 +632,7 @@ const renderRows = () => {
   }
 }
 
-function createDebugZones(zoneArr) {
+function drawDebugZones(zoneArr) {
   const colors = ['red', 'orange', 'yellow', 'green', 'blue']
 
   zoneArr.forEach(([top, bottom], i) => {
@@ -664,7 +664,7 @@ function setCurrentLevel(lvlNum) {
 
 function startLevel(lvlNum = 0) {
   setCurrentLevel(lvlNum)
-  song = getSong()
+  song = getSong0()
   for (let i = 0; i < currentLevel.songRepeats; i += 1) {
     song[2].push(2)
     song[2].push(1)
@@ -712,8 +712,8 @@ function initGame() {
 
   ZONE_HEIGHT = SECTION_HEIGHT * 1.5
   ZONE_TOP = (Math.floor(BOARD_HEIGHT / SECTION_SIZE) * (SECTION_SIZE - 2)) - (SECTION_HEIGHT * 1.5)
-  ZONE_CHECK_TOP = ZONE_TOP - (SECTION_HEIGHT / 1.5)
-  ZONE_CHECK_BOTTOM = (SECTION_HEIGHT * 15) - (SECTION_HEIGHT / 3)
+  ZONE_CHECK_TOP = ZONE_TOP - (SECTION_HEIGHT / 1.1)
+  ZONE_CHECK_BOTTOM = (SECTION_HEIGHT * 15) - (SECTION_HEIGHT / 2)
   // ZONE_CHECK_MEH_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
   // ZONE_CHECK_MEH_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
   ZONE_CHECK_OK_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
@@ -742,25 +742,28 @@ function initGame() {
   hihatX = (BOARD_MID + (HALF_SECTION * 3))
 
   drawBackground()
-  result.perfect = getDrawResult('#17f5fc')
-  result.good = getDrawResult('#1cfe3f')
+
+  result.perfect = getDrawResult('#1cfe3f')
+  result.good = getDrawResult('#17f5fc')
   result.ok = getDrawResult('#f5ff3c')
   result.meh = getDrawResult('#ff9827')
   result.bad = getDrawResult('#fe1015')
-  createDebugZones([
-    [ZONE_CHECK_TOP, ZONE_CHECK_BOTTOM],
-    // [ZONE_CHECK_MEH_TOP, ZONE_CHECK_MEH_BOTTOM],
-    [ZONE_CHECK_OK_TOP, ZONE_CHECK_OK_BOTTOM],
-    [ZONE_CHECK_GOOD_TOP, ZONE_CHECK_GOOD_BOTTOM],
-    [ZONE_CHECK_PERFECT_TOP, ZONE_CHECK_PERFECT_BOTTOM],
-  ])
+
+  // drawDebugZones([
+  //   [ZONE_CHECK_TOP, ZONE_CHECK_BOTTOM],
+  //   // [ZONE_CHECK_MEH_TOP, ZONE_CHECK_MEH_BOTTOM],
+  //   [ZONE_CHECK_OK_TOP, ZONE_CHECK_OK_BOTTOM],
+  //   [ZONE_CHECK_GOOD_TOP, ZONE_CHECK_GOOD_BOTTOM],
+  //   [ZONE_CHECK_PERFECT_TOP, ZONE_CHECK_PERFECT_BOTTOM],
+  // ])
+
   lanesA = getNewLanesArr()
   lanesO = getNewLanesObj()
 
   logValues()
 
   /* START GAME */
-  startGame(3)
+  startGame(5)
 }
 
 function getDrawResult(fillColor) {
@@ -798,11 +801,14 @@ function drawBackground() {
   boardWrapper.prepend(bgCanvas)
 
   // DRAW ZONE:
-  bgCtx.fillStyle = 'rgb(0, 0, 0)'
+  bgCtx.fillStyle = '#ffffff'
+  bgCtx.strokeStyle = '#ffffff'
   bgCtx.setLineDash([4, 6])
   bgCtx.strokeRect(-2, ZONE_TOP, BOARD_WIDTH + 4, SECTION_HEIGHT * 1.5)
 
   // bass
+  bgCtx.fillStyle = '#222222'
+  bgCtx.strokeStyle = '#f9f9f9'
   bgCtx.fillRect(bassX, 0, 1, BOARD_HEIGHT)
   // kick
   bgCtx.fillRect(kickX, 0, 1, BOARD_HEIGHT)
@@ -823,18 +829,18 @@ function drawBackground() {
 }
 
 function addEventListeners() {
-  D.addEventListener('click', (e) => {
-    lanesO.bass.play()
-  })
-  F.addEventListener('click', (e) => {
-    lanesO.kick.play()
-  })
-  J.addEventListener('click', (e) => {
-    lanesO.snare.play()
-  })
-  K.addEventListener('click', (e) => {
-    lanesO.hihat.play()
-  })
+  // D.addEventListener('click', (e) => {
+  //   lanesO.bass.play()
+  // })
+  // F.addEventListener('click', (e) => {
+  //   lanesO.kick.play()
+  // })
+  // J.addEventListener('click', (e) => {
+  //   lanesO.snare.play()
+  // })
+  // K.addEventListener('click', (e) => {
+  //   lanesO.hihat.play()
+  // })
 
   window.addEventListener('keydown', handleKeyboardControl)
 }
