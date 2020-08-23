@@ -7,51 +7,156 @@ html {
 *:after {
   box-sizing: inherit;
 }
-canvas {
-  // display: none;
-}
+
 body {
-  margin: 0 auto;
   background-color: #030303;
+  color: #55ffff;
   // font-family: 'Courier New', Courier, monospace;
-  font-family: 'Impact';
+  font-family: 'Impact', Arial, Helvetica, sans-serif;
   // font-style: italic;
-  font-size: 16px;
+  font-size: 4vh;
   text-align: center;
   padding: 0;
-  // height: 100vh;
-  // width: 100vw;
+  margin: 0;
+  width: 100vw;
+}
+
+#menu, #intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 250px;
+  z-index: 2;
+}
+
+#menu {
+  opacity: 1;
+}
+
+#title {
+  color: #fe1015;
+  opacity: 0;
+  animation: show 2s ease-in 15s forwards;
+}
+#play {
+  opacity: 0;
+  animation: show 2s ease-in 15s forwards;
+}
+
+#skip {
+  animation: hide 2s ease-in-out 14s forwards;
+}
+#loading {
+  padding-left: 34px;
+  animation: hide 2s ease-in-out 14s forwards;
+
+  & > i {
+    opacity: 0;
+    animation: blink 2s;
+    animation-iteration-count: 7;
+  }
+  & *:nth-child(2) {
+    animation-delay: .33s;
+  }
+  & *:nth-child(3) {
+    animation-delay: .66s;
+  }
+  // & *:nth-child(4) {
+  //   animation-delay: 1.5s;
+  // }
+  // & *:nth-child(5) {
+  //   animation-delay: 2s;
+  // }
+  // & *:nth-child(6) {
+  //   animation-delay: 2.5s;
+  // }
+}
+
+@keyframes hide {
+  0% {
+    opacity: 1;
+  }
+  20%, 100% {
+    opacity: 0;
+  }
+}
+
+@keyframes show {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes blink {
+  0%, 40% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+}
+
+.intro {
+  position: absolute;
+  top: 50px;
+  opacity: 0;
+  color: #1cfe3f;
+  animation: inout 2s ease-in-out;
+
+  &:nth-child(2) {
+    animation-delay: 0;
+  }
+  &:nth-child(3) {
+    animation-delay: 2s;}
+  &:nth-child(4) {
+    animation-delay: 4s;}
+  &:nth-child(5) {
+    animation-delay: 6s;}
+  &:nth-child(6) {
+    color: #fe1015;
+    animation-delay: 8s;
+    animation-duration: 8s;
+  }
+}
+
+@keyframes inout {
+  0%, 100% {
+    opacity: 0,
+  }
+  20%, 80% {
+    opacity: 100%,
+  }
+}
+
+
+.center {
+  position: absolute;
+  width: 100%;
+}
+.button {
+  margin-top: 10%;
 }
 
 #canvas {
   display: none;
 }
 
-#synth-wrapper {
-  margin: 0 auto;
-  width: 100%;
-  // background-color: #b1b9c4;
-  // padding: 0 1rem 1rem;
-  // border: .25rem #222d31 solid;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-#synth-header {
-  font-size: 3rem;
-  text-align: left;
-}
-
 #board-wrapper {
   flex-grow: 1;
   overflow: hidden;
   position: relative;
-  background-color: #030303;
-  // max-height: 50vh;
-  /* It feels better going bottom to top: */
-  // transform: rotateX(180deg);
+  background-color: #060606;
+  height: 100%;
+}
+
+.board {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 #bgBoard {
@@ -59,12 +164,6 @@ body {
 }
 
 #board {
-  position: relative;
-  top: 0;
-  left: 50%;
-  // height: // set in JS
-  flex-grow: 1;
-  transform: translateX(-50%);
   /* - Transform! - */
 
   // Try also `-35%` or -400px -30% / 300px
@@ -72,7 +171,6 @@ body {
 
   /* It feels better going bottom to top: */
   // transform: rotateX(180deg);
-  z-index: 0;
 }
 
 #beat-button-wrapper {
@@ -183,3 +281,49 @@ body {
     background-color: #8293a5;
   }
 }
+
+.textFly {
+  position: absolute;
+  opacitY: 1;
+  transition: all .75s;
+  top: 400px;
+  left: 300px;
+}
+
+.eq {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  & > div {
+    border: 2px solid #000000;
+    width: 100px;
+    height: 33px;
+    margin: 2px;
+    animation: light 1s;
+  }
+}
+.eq *:nth-child(1) { animation-delay: .1s;}
+.eq *:nth-child(2) { animation-delay: .09s;}
+.eq *:nth-child(3) { animation-delay: .08s;}
+.eq *:nth-child(4) { animation-delay: .07s;}
+.eq *:nth-child(5) { animation-delay: .06s;}
+.eq *:nth-child(6) { animation-delay: .05s;}
+.eq *:nth-child(7) { animation-delay: .04s;}
+.eq *:nth-child(8) { animation-delay: .03s;}
+.eq *:nth-child(9) { animation-delay: .02s;}
+.eq *:nth-child(10) { animation-delay: .01s;}
+
+@keyframes light {
+  0% {
+    background-color: rgba(28, 254, 63, 0);
+  }
+  100% {
+    background-color: rgba(28, 254, 63, 1);
+  }
+}
+
+// result.perfect = getDrawResult('#1cfe3f')
+// result.good = getDrawResult('#17f5fc')
+// result.ok = getDrawResult('#f5ff3c')
+// result.meh = getDrawResult('#ff9827')
+// result.bad = getDrawResult('#fe1015')

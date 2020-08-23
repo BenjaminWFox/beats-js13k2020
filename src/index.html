@@ -8,24 +8,24 @@
 </head>
 
 <body id="body">
-  <div id="synth-wrapper">
-    <!-- <div id="synth-header">ATL-404 <span id="clock"></span> <span id="fps"></span></div> -->
-    <div id="board-wrapper">
-      <canvas id="board" class="board"></canvas>
-    </div>
-    <!-- <div id="beat-button-wrapper">
-      <div class="beat-button" id="D">D</div>
-      <div class="beat-button" id="F">F</div>
-      <div class="beat-button" id="J">J</div>
-      <div class="beat-button" id="K">K</div>
-    </div>
-  </div> -->
-  <!-- <div id="time"></div> -->
+  <div id="menu" class="center">
+    <div id="title">BEATS NOT FOUND</div>
+    <div id="play" class="button">PLAY [P]</div>
+    <div id="skip" class="button">SKIP [S]</div>
+  </div>
+  <div id="intro" class="center">
+    <div id="loading">LOADING <i>.</i><i>.</i><i>.</i></div>
+    <div class="intro">GRAPHICS</div>
+    <div class="intro">ASSETS</div>
+    <div class="intro">MELODIES</div>
+    <div class="intro">BEATS</div>
+    <div class="intro">ERROR 404<br/>BEATS NOT FOUND</div>
+  </div>
+  <div id="board-wrapper">
+    <canvas id="board" class="board"></canvas>
+    <canvas id="bgBoard" class="board"></canvas>
+  </div>
   <canvas id="canvas" width="800" height="5"></canvas>
 </body>
 
 </html>
-
-            <!-- <div class="beat-container" style="width: 71px; height: 71px; top: 1000px;">
-              <div class="beat-visual snare-beat">​</div>
-            </div> -->
