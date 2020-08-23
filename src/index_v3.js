@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* #region ******** IMPORTS ******** */
 
 import './main.scss'
@@ -119,7 +120,7 @@ const kick = new Kick(aCtx)
 const snare = new Snare(aCtx)
 const hihat = new HiHat(aCtx)
 
-/* eslint-disable */
+
 // zzfx() - the universal entry point -- returns a AudioBufferSourceNode
 const zzfx = (...t) => zzfxP(zzfxG(...t))
 // zzfxP() - the sound player -- returns a AudioBufferSourceNode
@@ -218,7 +219,6 @@ const getSong1 = () => (
 let song
 let songData
 let songAudio
-/* eslint-enable */
 
 /* #endregion */
 

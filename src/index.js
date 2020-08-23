@@ -6,6 +6,7 @@ import Bass from './sound/bass'
 import Kick from './sound/kick'
 import Snare from './sound/snare'
 import HiHat from './sound/hihat'
+import lt from './assets/images/levels/lt.png'
 import l0 from './assets/images/levels/l0.png'
 import l1 from './assets/images/levels/l1.png'
 import l2 from './assets/images/levels/l2.png'
@@ -15,6 +16,7 @@ import l5 from './assets/images/levels/l5.png'
 /* #endregion */
 
 /* #region ******** CONSTANTS & GLOBAL VARS ******** */
+
 // TICK_EVERY is the main timer for tracking audio `note` events.
 const TICK_EVERY = 16
 const FPS = 60
@@ -44,12 +46,12 @@ let canvas
 let context
 let bgCanvas
 let bgCtx
+let lCtx
 let scene
 let gamescene
 let titlescene
 let introscene
 let loop
-/* #endregion */
 
 const introStrings = [
   'GRAPHICS',
@@ -72,10 +74,89 @@ function setScene(s) {
   scene = s
 }
 
+/* #endregion */
+
 /* #region ******** ALIASES & CONVENIENCE ******** */
 
 const $ = document.querySelector.bind(document)
 const convertPx = (n) => `${n}px`
+
+/* #endregion */
+
+/* #region ******** LEVELS ******** */
+
+const levels = [l0, l1, l2, l3, l4, l5]
+let loadedLevels = 0
+
+function parseLevels() {
+  levels.forEach((lvl, i) => {
+    lvl.data = {}
+    lvl.length = lvl.image.width
+    lvl.width = lvl.image.width
+    lvl.height = lvl.image.height
+    lCtx.drawImage(lvl.image, 0, 0)
+
+    let processingBeat = 1
+    let totalMeasures = 0
+
+    // There will be 5 levels of height. 4 lanes, then metadata.
+    for (let i = 0; i < lvl.height; i += 1) {
+      lvl.data[i] = []
+      let repeats = 0
+
+      // Width is the number of beat `sections`
+      // `sections` may repeat n times, specified in the height metadata
+      for (let j = 0; j < lvl.width; j += 1) {
+        // Process lanes 0 - 3 the same
+        const currentResult = lCtx.getImageData(j, i, 1, 1).data[0] === 0 ? 1 : ''
+
+        if (i < 4) {
+          lvl.data[i].push(currentResult)
+        }
+        // Process metadata to find repeats
+        else {
+          const lookahead = lCtx.getImageData(j + 1, i, 1, 1).data[0] === 0 ? 1 : ''
+
+          // If there is no result,
+          if (!currentResult) {
+            lvl.data[i].push(currentResult)
+          }
+          else if (lookahead && j !== lvl.width - 1) {
+            repeats += 1
+            totalMeasures += 1
+            lvl.data[i].push('')
+          }
+          else if (currentResult && (!lookahead || j === lvl.width - 1)) {
+            lvl.data[i].push(repeats)
+            repeats = 0
+          }
+
+          processingBeat += 1
+        }
+      }
+    }
+
+    lvl.songRepeats = Math.ceil(totalMeasures / 2)
+
+  })
+  console.log('Levels complete', levels)
+}
+
+function makeLevel(i) {
+  const image = new Image()
+  const lvl = {
+    image,
+    id: i,
+    length: undefined,
+  }
+
+  image.src = levels[i]
+
+  image.onload = function () {
+    levels.splice(i, 1, lvl)
+    loadedLevels += 1
+  }
+}
 
 /* #endregion */
 
@@ -182,19 +263,33 @@ function drawBackground() {
 /* #endregion */
 
 /* #region ******** INIT ******** */
+function startGameWhenReady() {
+  if (loadedLevels === levels.length) {
+    // START FIRST THING HERE
+    initGame()
+    loop = gl()
+    loop.start()
+  }
+  else {
+    setTimeout(startGameWhenReady, 250)
+  }
+}
 
 window.addEventListener('load', () => {
   ({ canvas, context } = initKontra('board'))
 
   initPointer()
-  initGame()
 
-  loop = gl()
-  loop.start()
+  // After the levels have all loaded (images)
+  // it will call `initGame()`
+  levels.forEach((level, i) => makeLevel(i))
+
+  startGameWhenReady()
 })
 
 function initGame() {
   getElements()
+  parseLevels()
   initConstants()
   initUi()
   initScenes()
@@ -206,6 +301,7 @@ function initGame() {
 function getElements() {
   bgCanvas = $('#bgBoard')
   bgCtx = bgCanvas.getContext('2d')
+  lCtx = $('#canvas').getContext('2d')
 }
 
 function initConstants() {
