@@ -1,6 +1,6 @@
 /* #region ******** IMPORTS ******** */
 
-import { init as initKontra, clamp, Text, GameLoop, Scene, on } from 'kontra'
+import { init as initKontra, clamp, Text, GameLoop, Scene } from 'kontra'
 import Bass from './sound/bass'
 import Kick from './sound/kick'
 import Snare from './sound/snare'
@@ -28,11 +28,23 @@ let SECTION_HEIGHT
 let BOARD_HEIGHT
 let CANVAS_WIDTH
 let CANVAS_MIDX
+let MOVE_SPEED
 let ZONE_TOP
 let BASS_X
 let KICK_X
 let SNARE_X
 let HIHAT_X
+
+let ZONE_HEIGHT
+let ZONE_CHECK_TOP
+let ZONE_CHECK_BOTTOM
+let ZONE_CHECK_OK_TOP
+let ZONE_CHECK_OK_BOTTOM
+let ZONE_CHECK_GOOD_TOP
+let ZONE_CHECK_GOOD_BOTTOM
+let ZONE_CHECK_PERFECT_TOP
+let ZONE_CHECK_PERFECT_BOTTOM
+
 const COLORS = {
   perfect: '#1cfe3f',
   good: '#17f5fc',
@@ -50,7 +62,15 @@ let scene
 let gamescene
 let titlescene
 let introscene
+let currentLevel
 let loop
+
+let loadedLevels = 0
+const levels = [lt, l0, l1, l2, l3, l4, l5]
+
+const beatsInTransit = []
+const beatsToHittest = []
+const beatsToIgnore = []
 
 const introStrings = [
   'GRAPHICS',
@@ -66,6 +86,8 @@ const scenes = {
   titlescene: 'titlescene',
   gamescene: 'gamescene',
 }
+
+let beats
 
 function setScene(s) {
   console.log('Setting scene', s)
@@ -95,9 +117,9 @@ const hihat = new HiHat(aCtx)
 // zzfx() - the universal entry point -- returns a AudioBufferSourceNode
 const zzfx = (...t) => zzfxP(zzfxG(...t))
 // zzfxP() - the sound player -- returns a AudioBufferSourceNode
-const zzfxP = (T, ...t) => { 
+const zzfxP = (...t) => { 
   let e = zzfxX.createBufferSource(), f = zzfxX.createBuffer(t.length, t[0].length, zzfxR);
-  t.map((d, i) => f.getChannelData(i).set(d)), e.buffer = f, e.connect(zzfxX.destination), e.start(T);
+  t.map((d, i) => f.getChannelData(i).set(d)), e.buffer = f, e.connect(zzfxX.destination);
   return e 
 }
 // zzfxG() - the sound generator -- returns an array of sample data
@@ -124,10 +146,11 @@ const getSong0 = () => (
     [1, 0, 400],
   ],
   [
-    // Keep 1 beat before first notes to align this with the metronome...
+    // Keep 3 beats before first notes to align this with the metronome...
+    // Seems to give the best results.
     [
-      [7, 0, , 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-      [3, 0, , 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
+      [7, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+      [3, 0, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
       // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
     ],
     [
@@ -149,10 +172,7 @@ const getSong0 = () => (
     2,
     1,
     2,
-    1,
-    2,
-    1,
-    2
+    1
   ],
   60,
 ])
@@ -194,32 +214,122 @@ const getSong1 = () => (
     [
       0,
       1,
-      2,
-      1,
-      2,
-      1,
-      2,
-      1,
-      2
     ],
     60,
   ]
 )
-let song
-let songData
-let songAudio
+let song1, song2
+let songData1, songData2
+let songAudio1, songAudio2
+
+let started
+song1 = getSong0()
+songData1 = zzfxM(...song1)
+songAudio1 = zzfxP(...songData1)
+song2 = getSong1()
+songData2 = zzfxM(...song2)
+songAudio2 = zzfxP(...songData2)
 /**/
-  song = getSong0()
-  songData = zzfxM(...song)
   // songAudio = zzfxP(aCtx.currentTime + 5, ...songData)
   // songAudio.start()
 /* eslint-enable */
 /* #endregion */
 
+/* #region ******** BEATS ******** */
+
+function BeatSprite(i) {
+  this.index = i
+  this.beat = beats[i]
+  this.y = -SECTION_HEIGHT
+  this.x = this.beat.x - (SECTION_HEIGHT / 2)
+  this.image = this.beat.image
+  this.hit = false
+  this.beat = undefined
+  this.zone = -1
+
+  this.move = function (measureBeat, totalBeats) {
+    if (!this.beat) {
+      this.beat = totalBeats
+    }
+
+    console.log(currentLevel, ZONE_TOP)
+    if (currentLevel === 0 && this.y > (ZONE_TOP + (SECTION_HEIGHT / 8))) {
+      // do nothign...
+    }
+    else {
+      this.y += MOVE_SPEED
+
+      if (this.beat < totalBeats) {
+        this.zone += 1
+        this.beat = totalBeats
+        this.y = SECTION_HEIGHT * this.zone
+      }
+    }
+    // Reconciliation between animation and audio
+    // We know where the beat SHOULD be every measure (16 16th notes)
+
+    // if (this.y > ZONE_TOP - SECTION_HEIGHT) {
+    //   beatsInTransit.pop()
+    //   beatsToHittest.unshift(this)
+    // }
+    // if (this.y > SECTION_HEIGHT * 15) {
+    //   beatsToHittest.pop()
+    //   beatsToIgnore.unshift(this)
+    // }
+
+    if (this.y > BOARD_HEIGHT) {
+      if (!this.hit) {
+        console.log('Hey, you missed this one...')
+      }
+      beatsInTransit.pop()
+
+      console.log(beatsInTransit)
+    }
+    // if (!this.played && this.y > ZONE_TOP) {
+    //   this.parent.play()
+    //   this.played = true
+    // }
+  }
+
+  this.render = () => {
+    context.drawImage(this.image, this.x, this.y)
+  }
+}
+
+function spawnBeat(i) {
+  beatsInTransit.unshift(new BeatSprite(i))
+}
+
+function getBeatImage(fillColor, strokeColor, showDebug) {
+  const sCanvas = document.createElement('canvas')
+
+  sCanvas.width = SECTION_HEIGHT
+  sCanvas.height = SECTION_HEIGHT
+
+  const sCtx = sCanvas.getContext('2d')
+
+  if (showDebug) {
+    sCtx.strokeStyle = 'red'
+    sCtx.strokeRect(0, 0, SECTION_HEIGHT, SECTION_HEIGHT)
+  }
+  sCtx.fillStyle = fillColor
+  sCtx.strokeStyle = strokeColor
+  sCtx.beginPath()
+  sCtx.arc(SECTION_HEIGHT / 2, SECTION_HEIGHT / 2, SECTION_HEIGHT / 2 * .9, 0, Math.PI * 2)
+  sCtx.fill()
+  sCtx.stroke()
+
+  return sCanvas
+}
+
+/* #endregion */
+
 /* #region ******** LEVELS ******** */
 
-const levels = [l0, l1, l2, l3, l4, l5]
-let loadedLevels = 0
+function setCurrentLevel(i) {
+  currentLevel = i
+  clearMusicTrackers()
+}
 
 function parseLevels() {
   levels.forEach((lvl, i) => {
@@ -344,10 +454,8 @@ const gl = () => GameLoop({
         if (titlescene.children[2].opacity < 1) {
           fadeIn(titlescene.children[2])
         }
-        if (!current16thNote) {
-          current16thNote = 0
-        }
-        scheduler()
+
+        facilitateCurrentLevel()
         // doAudioStuff()
         break
       default:
@@ -361,7 +469,13 @@ const gl = () => GameLoop({
         break
       case scenes.titlescene:
         drawBackground()
+        renderAnyBeats()
         titlescene.render()
+        break
+      case scenes.gamescene:
+        drawBackground()
+        renderAnyBeats()
+        gamescene.render()
         break
       default:
         break
@@ -373,10 +487,20 @@ const gl = () => GameLoop({
 let nextNoteTime = 0.0
 const scheduleAheadTime = .01
 let current16thNote
+let totalBeats
+let sectionBeats
+let beatsSinceRepeat
+let sectionRepeats
 const tempo = BPM
-const lookahead = 25.0
-const noteResolution = 0
-const notesInQueue = []
+// const lookahead = 25.0
+
+function clearMusicTrackers() {
+  current16thNote = 0
+  totalBeats = 0
+  sectionBeats = 0
+  beatsSinceRepeat = 0
+  sectionRepeats = 0
+}
 
 function nextNote() {
   // Advance current note and time by a 16th note...
@@ -386,77 +510,125 @@ function nextNote() {
   nextNoteTime += 0.25 * secondsPerBeat // Add beat length to last beat time
 
   current16thNote++ // Advance the beat number, wrap to zero
-  if (current16thNote == 16) {
+  if (current16thNote === 16) {
     current16thNote = 0
   }
 }
 
-let firstNote = true
-
 function scheduleNote(beatNumber, time) {
-  // push the note on the queue, even if we're not playing.
-  notesInQueue.push({ note: beatNumber, time })
-
-  if ((noteResolution == 1) && (beatNumber % 2)) {
-    return
-  } // we're not playing non-8th 16th notes
-  if ((noteResolution == 2) && (beatNumber % 4)) {
-    return
-  } // we're not playing non-quarter 8th notes
-
-  // create an oscillator
-  // const osc = audioContext.createOscillator()
-
-  // osc.connect(audioContext.destination)
-  // beat 0 == high pitch
-  console.log(beatNumber)
-  if (beatNumber % 16 === 0) {
-    // osc.frequency.value = 880.0
-  }
-  // quarter notes = medium pitch
-  if (beatNumber % 4 === 0) {
-    if (firstNote) {
-      console.log('firstNote') // .
-      songAudio = zzfxP(time, ...songData)
-      firstNote = false
-    }
-
-    hihat.trigger(time)
-
-    // osc.frequency.value = 440.0
-  }
-  // other 16th notes = low pitch
-  else {
-    // osc.frequency.value = 220.0
-  }
-
-  // osc.start(time)
-  // osc.stop(time + noteLength)
+  // // Every new measure
+  // if (beatNumber % 16 === 0) {
+  //   snare.trigger(time)
   // }
 
+  if (!started) {
+    // If this is the beginning of the audio, just set these together.
+    // Otherwise it seems like odd things happen when it tries to catch up
+    nextNoteTime = aCtx.currentTime
+    // Trigger the initial play.
+    songAudio1.start(time)
+    // snare.trigger(time)
+    started = true
+  }
+
+  checkForLevelSpawns()
+
+  // // quarter notes = medium pitch .s
+  // if (beatNumber % 4 === 0) {
+  // }
+
+  // half notes
+  // if (beatNumber % 2 === 0) {
+  //   // bass.trigger(time)
+  // }
+
+  // Run every 16th note
+
+  // snare.trigger(time)
+
+  // console.log(beatNumber)
 }
 
 function scheduler() {
   // while there are notes that will need to play before the next interval,
   // schedule them and advance the pointer.
   while (nextNoteTime < aCtx.currentTime + scheduleAheadTime) {
-    console.log('Schedule!')
     scheduleNote(current16thNote, nextNoteTime)
     nextNote()
   }
 }
 /** END METRONOME */
-function doAudioStuff() {
-  if (!currentTick) {
-    currentTick = aCtx.currentTime
+function moveBeats() {
+  for (let i = 0; i < beatsInTransit.length; i += 1) {
+    beatsInTransit[i].move(current16thNote, totalBeats)
+  }
+  // for (let i = 0; i < beatsToHittest.length; i += 1) {
+  //   beatsToHittest[i].move(current16thNote, totalBeats)
+  // }
+  // for (let i = 0; i < beatsToIgnore.length; i += 1) {
+  //   beatsToIgnore[i].move(current16thNote, totalBeats)
+  // }
+}
+
+function checkForLevelSpawns() {
+  for (let i = 0; i < 4; i += 1) {
+    if (levels[currentLevel].data[i][sectionBeats]) {
+      spawnBeat(i)
+    }
+  }
+
+  const repeats = levels[currentLevel].data[4][sectionBeats]
+
+  if (repeats) {
+    levels[currentLevel].data[4][sectionBeats] -= 1
+    sectionRepeats = levels[currentLevel].data[4][sectionBeats]
+    sectionBeats -= beatsSinceRepeat
+    beatsSinceRepeat = 0
+  }
+  else if (repeats === 0) {
+    levels[currentLevel].data[4][sectionBeats] = ''
+    beatsSinceRepeat = 0
   }
   else {
-    if (currentTick < aCtx.currentTime - TIME_PER_TICK) {
-      console.log('16th Tick', currentTick, aCtx.currentTime)
-      currentTick += TIME_PER_TICK
+    beatsSinceRepeat += 1
+    sectionBeats += 1
+
+    if (sectionBeats === levels[currentLevel].data[4].length) {
+      // console.log('SPAWNS COMPLETE!!')
+      console.log('TODO: Mark all spawns complete')
+      // spawnsComplete()
     }
   }
 }
+
+function facilitateCurrentLevel() {
+  scheduler()
+  moveBeats()
+}
+function renderAnyBeats() {
+  for (let i = 0; i < beatsInTransit.length; i += 1) {
+    beatsInTransit[i].render()
+  }
+  // for (let i = 0; i < beatsToHittest.length; i += 1) {
+  //   beatsToHittest[i].render()
+  // }
+  // for (let i = 0; i < beatsToIgnore.length; i += 1) {
+  //   beatsToIgnore[i].render()
+  // }
+}
+
+// // Currently replaced by metronome scheduler
+// function doAudioStuff() {
+//   if (!currentTick) {
+//     currentTick = aCtx.currentTime
+//   }
+//   else {
+//     if (currentTick < aCtx.currentTime - TIME_PER_TICK) {
+//       console.log('16th Tick', currentTick, aCtx.currentTime)
+//       currentTick += TIME_PER_TICK
+//     }
+//   }
+// }
 
 /* #endregion */
 
@@ -479,20 +651,11 @@ function drawBackground() {
   context.fillRect(SNARE_X, 0, 1, BOARD_HEIGHT)
   // hihat
   context.fillRect(HIHAT_X, 0, 1, BOARD_HEIGHT)
-
-  // const half = hihatX - (hihatX / 2)
-
-  // bgCtx.stroke()
-  // bgCtx.fillRect(kickX - HALF_SECTION, BOARD_HEIGHT - (SECTION_HEIGHT * 2), SECTION_HEIGHT, SECTION_HEIGHT * 2)
-  // bgCtx.stroke()
-  // bgCtx.fillRect(snareX - HALF_SECTION, BOARD_HEIGHT - (SECTION_HEIGHT * 2), SECTION_HEIGHT, SECTION_HEIGHT * 2)
-  // bgCtx.stroke()
-  // bgCtx.fillRect(hihatX - HALF_SECTION, BOARD_HEIGHT - (SECTION_HEIGHT * 2), SECTION_HEIGHT, SECTION_HEIGHT * 2)
-  // bgCtx.stroke()
 }
 /* #endregion */
 
 /* #region ******** INIT ******** */
+
 function handleKeyboardControl(event) {
   switch (scene.id) {
     case scenes.introscene:
@@ -590,10 +753,11 @@ function initGame() {
   parseLevels()
   initConstants()
   initUi()
+  initBeats()
   initScenes()
 
   // introscene.show()
-  setScene(introscene)
+  setScene(titlescene)
 }
 
 function getElements() {
@@ -607,11 +771,25 @@ function initConstants() {
   BOARD_HEIGHT = VIEW_HEIGHT
   VIEW_WIDTH = window.innerWidth
   SECTION_HEIGHT = Math.floor(VIEW_HEIGHT / HORIZONTAL_SECTIONS)
+  MOVE_SPEED = SECTION_HEIGHT / (FPS * TIME_PER_TICK)
   CANVAS_WIDTH = SECTION_HEIGHT * 5
   CANVAS_MIDX = CANVAS_WIDTH / 2
   // The y top coord of the hit zone
+
   console.log(BOARD_HEIGHT, HORIZONTAL_SECTIONS, SECTION_HEIGHT)
+
+  ZONE_HEIGHT = SECTION_HEIGHT * 1.5
   ZONE_TOP = (Math.floor(BOARD_HEIGHT / HORIZONTAL_SECTIONS) * (HORIZONTAL_SECTIONS - 2)) - (SECTION_HEIGHT * 1.5)
+  ZONE_CHECK_TOP = ZONE_TOP - (SECTION_HEIGHT / 1.1)
+  ZONE_CHECK_BOTTOM = (SECTION_HEIGHT * 15) - (SECTION_HEIGHT / 2)
+  // ZONE_CHECK_MEH_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
+  // ZONE_CHECK_MEH_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
+  ZONE_CHECK_OK_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
+  ZONE_CHECK_OK_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
+  ZONE_CHECK_GOOD_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 3)))
+  ZONE_CHECK_GOOD_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 3)))
+  ZONE_CHECK_PERFECT_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT))
+  ZONE_CHECK_PERFECT_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT))
 
   BASS_X = (CANVAS_MIDX - ((SECTION_HEIGHT / 2) * 3))
   KICK_X = CANVAS_MIDX - (SECTION_HEIGHT / 2)
@@ -629,10 +807,34 @@ function initUi() {
   $('#board-wrapper').style.width = `${canvas.width}px`
 }
 
+function initBeats() {
+  beats = [
+    {
+      x: BASS_X,
+      image: getBeatImage('#ff5555', '#eeeeee', false),
+    },
+    {
+      x: KICK_X,
+      image: getBeatImage('#08ff08', '#eeeeee', false),
+    },
+    {
+      x: SNARE_X,
+      image: getBeatImage('#6600ff', '#eeeeee', false),
+    },
+    {
+      x: HIHAT_X,
+      image: getBeatImage('#04d9ff', '#eeeeee', false),
+    },
+  ]
+}
+
 function initScenes() {
   gamescene = Scene({
     id: scenes.gamescene,
     children: [],
+    onShow() {
+      setCurrentLevel(1)
+    },
   })
   introscene = Scene({
     id: scenes.introscene,
@@ -678,6 +880,7 @@ function initScenes() {
       introscene.children[2],
     ],
     onShow() {
+      setCurrentLevel(0)
       this.children[0].text = introStrings[5]
       this.children[0].color = COLORS.bad
       this.children[2].text = 'START\n[ space ]',
