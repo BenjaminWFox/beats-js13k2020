@@ -64,6 +64,7 @@ let titlescene
 let introscene
 let currentLevel
 let loop
+let audioReady = undefined
 
 let loadedLevels = 0
 const levels = [lt, l0, l1, l2, l3, l4, l5]
@@ -520,8 +521,15 @@ function scheduleNote(beatNumber, time) {
   // if (beatNumber % 16 === 0) {
   //   snare.trigger(time)
   // }
+  console.log('scheduling...')
 
-  if (!started) {
+  if (!started && audioReady === undefined) {
+    audioReady = false
+  }
+  else if (!started && audioReady === false) {
+    audioReady = true
+  }
+  else if (!started && audioReady === true) {
     // If this is the beginning of the audio, just set these together.
     // Otherwise it seems like odd things happen when it tries to catch up
     nextNoteTime = aCtx.currentTime
@@ -531,7 +539,9 @@ function scheduleNote(beatNumber, time) {
     started = true
   }
 
-  checkForLevelSpawns()
+  if (started) {
+    checkForLevelSpawns()
+  }
 
   // // quarter notes = medium pitch .s
   // if (beatNumber % 4 === 0) {
@@ -878,6 +888,15 @@ function initScenes() {
       introscene.children[1],
       introscene.children[0],
       introscene.children[2],
+      Text({
+        x: CANVAS_MIDX,
+        y: 650,
+        color: COLORS.ok,
+        anchor: { x: .5, y: .5 },
+        text: 'TUTORIAL\n[ t ]',
+        textAlign: 'center',
+        font: gFont(30),
+      }),
     ],
     onShow() {
       setCurrentLevel(0)
