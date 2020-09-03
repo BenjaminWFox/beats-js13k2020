@@ -63,14 +63,20 @@ let gamescene
 let titlescene
 let introscene
 let currentLevel
+let levelStarted = false
 let loop
 
 let loadedLevels = 0
-const levels = [lt, l0, l1, l2, l3, l4, l5]
+const levels = [lt, l3, l1, l2, l3, l4, l5]
 
-const beatsInTransit = []
-const beatsToHittest = []
-const beatsToIgnore = []
+let beatsInTransit = []
+let beatsToHittest = []
+let beatsToIgnore = []
+const clearAllBeats = () => {
+  beatsInTransit = []
+  beatsToHittest = []
+  beatsToIgnore = []
+}
 
 const introStrings = [
   'GRAPHICS',
@@ -300,7 +306,7 @@ function spawnBeat(i) {
   beatsInTransit.unshift(new BeatSprite(i))
 }
 
-function getBeatImage(fillColor, strokeColor, showDebug) {
+function getBeatImage(fillColor, strokeColor, key, showDebug) {
   const sCanvas = document.createElement('canvas')
 
   sCanvas.width = SECTION_HEIGHT
@@ -318,6 +324,11 @@ function getBeatImage(fillColor, strokeColor, showDebug) {
   sCtx.arc(SECTION_HEIGHT / 2, SECTION_HEIGHT / 2, SECTION_HEIGHT / 2 * .9, 0, Math.PI * 2)
   sCtx.fill()
   sCtx.stroke()
+  sCtx.fillStyle = '#000'
+  sCtx.font = gFont(48)
+  sCtx.textAlign = 'center'
+  sCtx.textBaseline = 'middle'
+  sCtx.fillText(key, 0 + (SECTION_HEIGHT / 2), 0 + (SECTION_HEIGHT / 2))
 
   return sCanvas
 }
@@ -328,7 +339,18 @@ function getBeatImage(fillColor, strokeColor, showDebug) {
 
 function setCurrentLevel(i) {
   currentLevel = i
+  levelStarted = false
+  clearAllBeats()
   clearMusicTrackers()
+}
+function completeLevel() {
+
+}
+function stopLevel() {
+  levelStarted = false
+}
+function startLevel() {
+  levelStarted = true
 }
 
 function parseLevels() {
@@ -458,6 +480,31 @@ const gl = () => GameLoop({
         facilitateCurrentLevel()
         // doAudioStuff()
         break
+      case scenes.gamescene:
+        if (levelStarted) {
+          if (gamescene.children[0].opacity > 0) {
+            fadeOut(gamescene.children[0])
+          }
+          if (gamescene.children[1].opacity > 0) {
+            fadeOut(gamescene.children[1])
+          }
+          if (gamescene.children[2].opacity > 0) {
+            fadeOut(gamescene.children[2])
+          }
+          facilitateCurrentLevel()
+        }
+        else {
+          if (gamescene.children[0].opacity < 1) {
+            fadeIn(gamescene.children[0])
+          }
+          if (gamescene.children[1].opacity < 1) {
+            fadeIn(gamescene.children[1])
+          }
+          if (gamescene.children[2].opacity < 1) {
+            fadeIn(gamescene.children[2])
+          }
+        }
+        break
       default:
         break
     }
@@ -474,7 +521,9 @@ const gl = () => GameLoop({
         break
       case scenes.gamescene:
         drawBackground()
-        renderAnyBeats()
+        if (levelStarted) {
+          renderAnyBeats()
+        }
         gamescene.render()
         break
       default:
@@ -596,6 +645,7 @@ function checkForLevelSpawns() {
     if (sectionBeats === levels[currentLevel].data[4].length) {
       // console.log('SPAWNS COMPLETE!!')
       console.log('TODO: Mark all spawns complete')
+      completeLevel()
       // spawnsComplete()
     }
   }
@@ -605,6 +655,7 @@ function facilitateCurrentLevel() {
   scheduler()
   moveBeats()
 }
+
 function renderAnyBeats() {
   for (let i = 0; i < beatsInTransit.length; i += 1) {
     beatsInTransit[i].render()
@@ -678,7 +729,14 @@ function handleKeyboardControl(event) {
       }
       break
     case scenes.gamescene:
-      playFromKeycode(event.code)
+      switch (event.code) {
+        case 'Space':
+          startLevel()
+          break
+        default:
+          playFromKeycode(event.code)
+          break
+      }
       break
     default:
       break
@@ -807,35 +865,28 @@ function initUi() {
   $('#board-wrapper').style.width = `${canvas.width}px`
 }
 
-function initBeats() {
+function initBeats(showKeys = false) {
   beats = [
     {
       x: BASS_X,
-      image: getBeatImage('#ff5555', '#eeeeee', false),
+      image: getBeatImage('#ff5555', '#eeeeee', showKeys ? 'D' : '', false),
     },
     {
       x: KICK_X,
-      image: getBeatImage('#08ff08', '#eeeeee', false),
+      image: getBeatImage('#08ff08', '#eeeeee', showKeys ? 'F' : '', false),
     },
     {
       x: SNARE_X,
-      image: getBeatImage('#6600ff', '#eeeeee', false),
+      image: getBeatImage('#6600ff', '#eeeeee', showKeys ? 'J' : '', false),
     },
     {
       x: HIHAT_X,
-      image: getBeatImage('#04d9ff', '#eeeeee', false),
+      image: getBeatImage('#04d9ff', '#eeeeee', showKeys ? 'K' : '', false),
     },
   ]
 }
 
 function initScenes() {
-  gamescene = Scene({
-    id: scenes.gamescene,
-    children: [],
-    onShow() {
-      setCurrentLevel(1)
-    },
-  })
   introscene = Scene({
     id: scenes.introscene,
     text: 0,
@@ -881,6 +932,7 @@ function initScenes() {
     ],
     onShow() {
       setCurrentLevel(0)
+      initBeats(true)
       this.children[0].text = introStrings[5]
       this.children[0].color = COLORS.bad
       this.children[2].text = 'START\n[ space ]',
@@ -892,10 +944,34 @@ function initScenes() {
       this.children[1].text = 'Prepare For\nManual Re-entry...'
       this.children[1].font = gFont(30)
     },
+    onHide() {
+      clearAllBeats()
+    },
     // render() {
     //   drawBackground()
     // },
-
+  })
+  gamescene = Scene({
+    id: scenes.gamescene,
+    children: [
+      introscene.children[1],
+      introscene.children[0],
+      introscene.children[2],
+    ],
+    onShow() {
+      setCurrentLevel(1)
+      initBeats()
+      this.children[0].text = `LEVEL ${currentLevel}`
+      this.children[0].color = COLORS.bad
+      this.children[2].text = 'START\n[ space ]',
+      this.children[0].opacity = 0
+      this.children[2].opacity = 0
+      this.children[1].y = 350
+      this.children[1].opacity = 0
+      this.children[1].color = COLORS.perfect
+      this.children[1].text = 'Are you ready?'
+      this.children[1].font = gFont(30)
+    },
   })
 }
 
@@ -932,6 +1008,11 @@ function swapToNextIntroEl(el, i, fadeIn = false) {
 function fadeIn(el) {
   if (el.opacity < 1) {
     el.opacity = clamp(0, 1, el.opacity + .05)
+  }
+}
+function fadeOut(el) {
+  if (el.opacity > 0) {
+    el.opacity = clamp(0, 1, el.opacity - .05)
   }
 }
 function blinkOverTime(c, t, dur, el) {
