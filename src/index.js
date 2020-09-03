@@ -62,13 +62,16 @@ let scene
 let gamescene
 let titlescene
 let introscene
+let reviewscene
 let currentLevel
 let levelStarted = false
+let spawnsComplete = false
 let loop
 let audioReady = undefined
 
 let loadedLevels = 0
-const levels = [lt, l3, l1, l2, l3, l4, l5]
+// const levels = [lt, l0, l1, l2, l3, l4, l5]
+const levels = [lt, l0, l1, l2]
 
 let beatsInTransit = []
 let beatsToHittest = []
@@ -92,6 +95,7 @@ const scenes = {
   introscene: 'introscene',
   titlescene: 'titlescene',
   gamescene: 'gamescene',
+  reviewscene: 'reviewscene',
 }
 
 let beats
@@ -264,6 +268,7 @@ function BeatSprite(i) {
     }
 
     console.log(currentLevel, ZONE_TOP)
+
     if (currentLevel === 0 && this.y > (ZONE_TOP + (SECTION_HEIGHT / 8))) {
       // do nothign...
     }
@@ -344,30 +349,37 @@ function getBeatImage(fillColor, strokeColor, key, showDebug) {
 
 function setCurrentLevel(i) {
   currentLevel = i
+  gamescene.children[0].text = `LEVEL ${currentLevel}`
   levelStarted = false
-  clearAllBeats()
+  spawnsComplete = false
   clearMusicTrackers()
   resetAllAssets()
-  songAudio = getNewSong(1)
-  if (i > 0) {
-    songAudio.start()
-  }
 }
 
 function resetAllAssets() {
   context.clearRect(0, 0, canvas.width, canvas.height)
   beatsInTransit = []
   if (audioStarted) {
+    audioStarted = false
     songAudio.stop()
   }
 }
-function completeLevel() {
+function setSpawnsComplete() {
+  spawnsComplete = true
+}
 
+function completeLevel() {
+  console.log('Level Complete')
+  stopLevel()
 }
 function stopLevel() {
-  levelStarted = false
+  setCurrentLevel(currentLevel + 1)
 }
 function startLevel() {
+  songAudio = getNewSong(1)
+  // if (currentLevel > 0) {
+  //   songAudio.start()
+  // }
   levelStarted = true
 }
 
@@ -495,8 +507,9 @@ const gl = () => GameLoop({
           fadeIn(titlescene.children[2])
         }
 
-        facilitateCurrentLevel()
-        // doAudioStuff()
+        if (levelStarted) {
+          facilitateCurrentLevel()
+        }
         break
       case scenes.gamescene:
         if (levelStarted) {
@@ -510,6 +523,11 @@ const gl = () => GameLoop({
             fadeOut(gamescene.children[2])
           }
           facilitateCurrentLevel()
+          if (spawnsComplete) {
+            if (beatsInTransit.length === 0) {
+              stopLevel()
+            }
+          }
         }
         else {
           if (gamescene.children[0].opacity < 1) {
@@ -647,6 +665,7 @@ function moveBeats() {
 }
 
 function checkForLevelSpawns() {
+  console.log('Checking level spawns...')
   for (let i = 0; i < 4; i += 1) {
     if (levels[currentLevel].data[i][sectionBeats]) {
       spawnBeat(i)
@@ -656,24 +675,26 @@ function checkForLevelSpawns() {
   const repeats = levels[currentLevel].data[4][sectionBeats]
 
   if (repeats) {
+    console.log('Repeats...')
     levels[currentLevel].data[4][sectionBeats] -= 1
     sectionRepeats = levels[currentLevel].data[4][sectionBeats]
     sectionBeats -= beatsSinceRepeat
     beatsSinceRepeat = 0
   }
   else if (repeats === 0) {
+    console.log('Repeats are ZERO')
     levels[currentLevel].data[4][sectionBeats] = ''
     beatsSinceRepeat = 0
   }
   else {
+    console.log('Done with both', sectionBeats, levels[currentLevel].data[4].length)
     beatsSinceRepeat += 1
     sectionBeats += 1
 
     if (sectionBeats === levels[currentLevel].data[4].length) {
       // console.log('SPAWNS COMPLETE!!')
       console.log('TODO: Mark all spawns complete')
-      completeLevel()
-      // spawnsComplete()
+      setSpawnsComplete()
     }
   }
 }
@@ -750,6 +771,11 @@ function handleKeyboardControl(event) {
         case 'Space':
           setScene(gamescene)
           break
+        case 'KeyT':
+          if (!levelStarted) {
+            startLevel()
+          }
+          break
         default:
           playFromKeycode(event.code)
           break
@@ -758,7 +784,10 @@ function handleKeyboardControl(event) {
     case scenes.gamescene:
       switch (event.code) {
         case 'Space':
-          startLevel()
+          if (!levelStarted) {
+            console.log('Beats in Transit', beatsInTransit)
+            startLevel()
+          }
           break
         default:
           playFromKeycode(event.code)
@@ -1008,6 +1037,12 @@ function initScenes() {
       this.children[1].text = 'Are you ready?'
       this.children[1].font = gFont(30)
     },
+  })
+  reviewscene = Scene({
+    id: scenes.reviewscene,
+    children: [],
+    onShow() {},
+    onhide() {},
   })
 }
 
