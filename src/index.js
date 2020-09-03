@@ -79,7 +79,7 @@ const levels = [lt, l0, l1, l2]
 let beatsInTransit = []
 let beatsToHittest = []
 let beatsToIgnore = []
-const scorePoppers = []
+let scorePoppers = []
 const clearAllBeats = () => {
   beatsInTransit = []
   beatsToHittest = []
@@ -303,6 +303,7 @@ function PopperSprite(res, x, i) {
       this.sprite.y -= 2
     }
     else {
+      console.log('Popping!')
       scorePoppers.pop()
     }
   }
@@ -312,22 +313,22 @@ function PopperSprite(res, x, i) {
 }
 
 function spawnScorePopper(res, i) {
-  scorePoppers.push(new PopperSprite(res, beats[i].x, i))
+  scorePoppers.unshift(new PopperSprite(res, beats[i].x, i))
   switch (res.text) {
     case result.perfect.text:
-      score += 800
+      score += result.perfect.points
       break
     case result.good.text:
-      score += 400
+      score += result.good.points
       break
     case result.ok.text:
-      score += 200
+      score += result.ok.points
       break
     case result.meh.text:
-      score += 100
+      score += result.meh.points
       break
     case result.bad.text:
-      score -= 100
+      score += result.bad.points
       break
     default:
       break
@@ -442,84 +443,91 @@ function checkCollision(beatIndex) {
     spawnScorePopper(result.bad, beatIndex)
     // context.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
   }
-  let didHit = false
+  else {
+    let didHit = false
 
-  for (let i = beatsToHittest.length; i > 0; i -= 1) {
-    const sI = i - 1
-    const sprite = beatsToHittest[sI]
+    for (let i = beatsToHittest.length; i > 0; i -= 1) {
+      const sI = i - 1
+      const sprite = beatsToHittest[sI]
 
-    if (sprite.index !== beatIndex) {
-      console.log('Current sprite not in this lane')
+      if (sprite.index !== beatIndex) {
+        console.log('Current sprite not in this lane')
 
-      continue
+        continue
+      }
+
+      const sY = Math.floor(sprite.y)
+
+      console.log('Testing sprite', sprite, sY, sprite.hit)
+
+      if (!sprite.hit) {
+        if (sY >= ZONE_CHECK_BOTTOM) {
+          // console.log('index', sI, 'too late')
+          // resCtx.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+          // continue
+
+          console.log('SPRITE MISSED!')
+          spawnScorePopper(result.bad, beatIndex)
+
+          // // This sprite was MISSED
+          // Decrement the scorre/add a strike/whatever
+          didHit = setHit(sprite)
+
+          continue
+        }
+        if (sY <= ZONE_CHECK_TOP) {
+        // console.log('index', sI, 'too soon')
+          console.log('TOO SOON!')
+          // resCtx.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+          continue
+        // Shouldn't do anything about this one - just know that it will impac the score somehow.
+        }
+        if (sY < ZONE_CHECK_PERFECT_BOTTOM && sprite.y > ZONE_CHECK_PERFECT_TOP) {
+          console.log('... PERFECT ...')
+          spawnScorePopper(result.perfect, beatIndex)
+          // resCtx.drawImage(result.perfect, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+          didHit = setHit(sprite)
+          continue
+        }
+        if (sY < ZONE_CHECK_GOOD_BOTTOM && sprite.y > ZONE_CHECK_GOOD_TOP) {
+          console.log('... GOOD ...')
+          spawnScorePopper(result.good, beatIndex)
+          // resCtx.drawImage(result.good, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+          didHit = setHit(sprite)
+          continue
+        }
+        if (sY < ZONE_CHECK_OK_BOTTOM && sprite.y > ZONE_CHECK_OK_TOP) {
+          console.log('... OK ...')
+          spawnScorePopper(result.ok, beatIndex)
+          // resCtx.drawImage(result.ok, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+          didHit = setHit(sprite)
+          continue
+        }
+        if (sY < ZONE_CHECK_BOTTOM && sprite.y > ZONE_CHECK_TOP) {
+          console.log('... MEH ...')
+          spawnScorePopper(result.meh, beatIndex)
+          // resCtx.drawImage(result.meh, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+          didHit = setHit(sprite)
+          continue
+        }
+      }
     }
 
-    const sY = Math.floor(sprite.y)
-
-    console.log('Testing sprite', sprite, sY, sprite.hit)
-
-    if (!sprite.hit) {
-      if (sY >= ZONE_CHECK_BOTTOM) {
-        // console.log('index', sI, 'too late')
-        // resCtx.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
-        // continue
-
-        console.log('SPRITE MISSED!')
+    if (!didHit) {
+      console.log('Did not hit anything!')
+      if (scene.id === scenes.gamescene) {
         spawnScorePopper(result.bad, beatIndex)
-
-        // // This sprite was MISSED
-        // Decrement the scorre/add a strike/whatever
-        sprite.hit = true
-        didHit = true
-
-        continue
       }
-      if (sY <= ZONE_CHECK_TOP) {
-      // console.log('index', sI, 'too soon')
-        console.log('TOO SOON!')
-        // resCtx.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
-        continue
-      // Shouldn't do anything about this one - just know that it will impac the score somehow.
-      }
-      if (sY < ZONE_CHECK_PERFECT_BOTTOM && sprite.y > ZONE_CHECK_PERFECT_TOP) {
-        console.log('... PERFECT ...')
-        spawnScorePopper(result.perfect, beatIndex)
-        // resCtx.drawImage(result.perfect, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
-        sprite.hit = true
-        didHit = true
-        continue
-      }
-      if (sY < ZONE_CHECK_GOOD_BOTTOM && sprite.y > ZONE_CHECK_GOOD_TOP) {
-        console.log('... GOOD ...')
-        spawnScorePopper(result.good, beatIndex)
-        // resCtx.drawImage(result.good, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
-        sprite.hit = true
-        didHit = true
-        continue
-      }
-      if (sY < ZONE_CHECK_OK_BOTTOM && sprite.y > ZONE_CHECK_OK_TOP) {
-        console.log('... OK ...')
-        spawnScorePopper(result.ok, beatIndex)
-        // resCtx.drawImage(result.ok, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
-        sprite.hit = true
-        didHit = true
-        continue
-      }
-      if (sY < ZONE_CHECK_BOTTOM && sprite.y > ZONE_CHECK_TOP) {
-        console.log('... MEH ...')
-        spawnScorePopper(result.meh, beatIndex)
-        // resCtx.drawImage(result.meh, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
-        sprite.hit = true
-        didHit = true
-        continue
-      }
+      // resCtx.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
     }
   }
+}
 
-  if (!didHit) {
-    console.log('Did not hit anything!')
-    spawnScorePopper(result.bad, beatIndex)
-    // resCtx.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+function setHit(s) {
+  if (scene.id === scenes.gamescene) {
+    s.hit = true
+
+    return true
   }
 }
 
@@ -529,6 +537,10 @@ function checkCollision(beatIndex) {
 
 function goToNextLevel() {
   setCurrentLevel(currentLevel + 1)
+}
+
+function replaySameLevel() {
+  setCurrentLevel(currentLevel)
 }
 
 function setCurrentLevel(i) {
@@ -551,7 +563,10 @@ function setCurrentLevel(i) {
 
 function resetAllAssets() {
   context.clearRect(0, 0, canvas.width, canvas.height)
+  score = 0
   beatsInTransit = []
+  beatsToHittest = []
+  scorePoppers = []
   if (audioStarted) {
     audioStarted = false
     songAudio.stop()
@@ -590,6 +605,10 @@ function parseLevels() {
 
     let processingBeat = 1
     let totalMeasures = 0
+    // eslint-disable-next-line
+    let totalBeats = 0
+    // eslint-disable-next-line
+    let measureBeats = 0
 
     // There will be 5 levels of height. 4 lanes, then metadata.
     for (let n = 0; n < lvl.height; n += 1) {
@@ -603,6 +622,7 @@ function parseLevels() {
         const currentResult = lCtx.getImageData(j, n, 1, 1).data[0] === 0 ? 1 : ''
 
         if (n < 4) {
+          measureBeats += currentResult === 1 ? 1 : 0
           lvl.data[n].push(currentResult)
         }
         // Process metadata to find repeats
@@ -620,7 +640,11 @@ function parseLevels() {
           }
           else if (currentResult && (!lookahead || j === lvl.width - 1)) {
             lvl.data[n].push(repeats)
+            measureBeats = measureBeats * (repeats + 1)
+            totalBeats += measureBeats
+
             repeats = 0
+            measureBeats = 0
           }
 
           processingBeat += 1
@@ -629,7 +653,8 @@ function parseLevels() {
     }
 
     lvl.songRepeats = Math.ceil(totalMeasures / 2)
-
+    lvl.totalBeats = totalBeats
+    lvl.maxScore = totalBeats * result.perfect.points
   })
   console.log('Levels complete', levels)
 }
@@ -766,6 +791,7 @@ const gl = () => GameLoop({
       case scenes.titlescene:
         drawBackground()
         renderAnyBeats()
+        renderAnyPoppers()
         titlescene.render()
         break
       case scenes.prelevelscene:
@@ -1022,6 +1048,9 @@ function handleKeyboardControl(event) {
       if (event.code === 'Space') {
         goToNextLevel()
       }
+      if (event.code === 'KeyR') {
+        replaySameLevel()
+      }
       break
     default:
       break
@@ -1100,7 +1129,7 @@ function initGame() {
   initScenes()
 
   // introscene.show()
-  setScene(titlescene)
+  setScene(introscene)
 }
 
 function getElements() {
@@ -1225,7 +1254,7 @@ function initScenes() {
       }),
     ],
     onShow() {
-      setCurrentLevel(2)
+      setCurrentLevel(0)
       initBeats(true)
       this.children[0].text = introStrings[5]
       this.children[0].color = COLORS.bad
@@ -1293,13 +1322,13 @@ function initScenes() {
     onShow() {
       this.children[0].text = `LEVEL ${currentLevel}\nCOMPLETE`
       this.children[0].color = COLORS.bad
-      this.children[2].text = 'NEXT\n[ space ]',
+      this.children[2].text = 'NEXT\n[ space ]\n\nRETRY\n[ r ]',
       this.children[0].opacity = 0
       this.children[2].opacity = 0
       this.children[1].y = 350
       this.children[1].opacity = 0
       this.children[1].color = COLORS.perfect
-      this.children[1].text = 'How did you do?'
+      this.children[1].text = `Score:\n${score}/\n${levels[currentLevel].maxScore}`
       this.children[1].font = gFont(30)
     },
     onhide() {},
