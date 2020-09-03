@@ -62,11 +62,14 @@ let scene
 let gamescene
 let titlescene
 let introscene
-let reviewscene
+let prelevelscene
+let postlevelscene
+let gameoverscene
 let currentLevel
 let levelStarted = false
 let spawnsComplete = false
 let loop
+let score = 0x0000000
 let audioReady = undefined
 
 let loadedLevels = 0
@@ -76,6 +79,7 @@ const levels = [lt, l0, l1, l2]
 let beatsInTransit = []
 let beatsToHittest = []
 let beatsToIgnore = []
+const scorePoppers = []
 const clearAllBeats = () => {
   beatsInTransit = []
   beatsToHittest = []
@@ -94,8 +98,38 @@ const introStrings = [
 const scenes = {
   introscene: 'introscene',
   titlescene: 'titlescene',
+  prelevelscene: 'prelevelscene',
   gamescene: 'gamescene',
-  reviewscene: 'reviewscene',
+  postlevelscene: 'postlevelscene',
+  gameoverscene: 'gameoverscene',
+}
+
+const result = {
+  perfect: {
+    text: 'PERFECT',
+    color: COLORS.perfect,
+    points: 1000,
+  },
+  good: {
+    text: 'GOOD',
+    color: COLORS.good,
+    points: 750,
+  },
+  ok: {
+    text: 'OK',
+    color: COLORS.ok,
+    points: 500,
+  },
+  meh: {
+    text: 'MEH',
+    color: COLORS.meh,
+    points: 250,
+  },
+  bad: {
+    text: 'BAD',
+    color: COLORS.bad,
+    points: -500,
+  },
 }
 
 let beats
@@ -250,6 +284,59 @@ songAudio = getNewSong(1)
 /* eslint-enable */
 /* #endregion */
 
+/* #region ******** SCORE / POPPER ******** */
+
+function PopperSprite(res, x, i) {
+  this.sprite = Text({
+    x,
+    y: ZONE_TOP - (SECTION_HEIGHT / 2),
+    color: res.color,
+    anchor: { x: .5, y: .5 },
+    text: res.text,
+    textAlign: 'center',
+    font: gFont(25),
+    opacity: 1,
+  }),
+  this.update = function () {
+    if (this.sprite.opacity > 0) {
+      this.sprite.opacity = clamp(0, 1, this.sprite.opacity - .01)
+      this.sprite.y -= 2
+    }
+    else {
+      scorePoppers.pop()
+    }
+  }
+  this.render = function () {
+    this.sprite.render()
+  }
+}
+
+function spawnScorePopper(res, i) {
+  scorePoppers.push(new PopperSprite(res, beats[i].x, i))
+  switch (res.text) {
+    case result.perfect.text:
+      score += 800
+      break
+    case result.good.text:
+      score += 400
+      break
+    case result.ok.text:
+      score += 200
+      break
+    case result.meh.text:
+      score += 100
+      break
+    case result.bad.text:
+      score -= 100
+      break
+    default:
+      break
+  }
+  gamescene.children[1].text = `SCORE:\n${score}`
+}
+
+/* #endregion */
+
 /* #region ******** BEATS ******** */
 
 function BeatSprite(i) {
@@ -261,13 +348,12 @@ function BeatSprite(i) {
   this.hit = false
   this.beat = undefined
   this.zone = -1
+  this.phase = 0
 
   this.move = function (measureBeat, totalBeats) {
     if (!this.beat) {
       this.beat = totalBeats
     }
-
-    console.log(currentLevel, ZONE_TOP)
 
     if (currentLevel === 0 && this.y > (ZONE_TOP + (SECTION_HEIGHT / 8))) {
       // do nothign...
@@ -284,10 +370,11 @@ function BeatSprite(i) {
     // Reconciliation between animation and audio
     // We know where the beat SHOULD be every measure (16 16th notes)
 
-    // if (this.y > ZONE_TOP - SECTION_HEIGHT) {
-    //   beatsInTransit.pop()
-    //   beatsToHittest.unshift(this)
-    // }
+    if (this.phase === 0 && this.y > ZONE_TOP - SECTION_HEIGHT) {
+      beatsInTransit.pop()
+      beatsToHittest.unshift(this)
+      this.phase = 1
+    }
     // if (this.y > SECTION_HEIGHT * 15) {
     //   beatsToHittest.pop()
     //   beatsToIgnore.unshift(this)
@@ -295,11 +382,12 @@ function BeatSprite(i) {
 
     if (this.y > BOARD_HEIGHT) {
       if (!this.hit) {
+        spawnScorePopper(result.bad, this.index)
         console.log('Hey, you missed this one...')
       }
-      beatsInTransit.pop()
+      beatsToHittest.pop()
 
-      console.log(beatsInTransit)
+      console.log(beatsToHittest)
     }
     // if (!this.played && this.y > ZONE_TOP) {
     //   this.parent.play()
@@ -308,6 +396,7 @@ function BeatSprite(i) {
   }
 
   this.render = () => {
+    console.log()
     context.drawImage(this.image, this.x, this.y)
   }
 }
@@ -345,15 +434,119 @@ function getBeatImage(fillColor, strokeColor, key, showDebug) {
 
 /* #endregion */
 
+/* #region ******** COLLISION ******** */
+
+function checkCollision(beatIndex) {
+  if (!beatsToHittest.length) {
+    console.log('NO BEAT!')
+    spawnScorePopper(result.bad, beatIndex)
+    // context.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+  }
+  let didHit = false
+
+  for (let i = beatsToHittest.length; i > 0; i -= 1) {
+    const sI = i - 1
+    const sprite = beatsToHittest[sI]
+
+    if (sprite.index !== beatIndex) {
+      console.log('Current sprite not in this lane')
+
+      continue
+    }
+
+    const sY = Math.floor(sprite.y)
+
+    console.log('Testing sprite', sprite, sY, sprite.hit)
+
+    if (!sprite.hit) {
+      if (sY >= ZONE_CHECK_BOTTOM) {
+        // console.log('index', sI, 'too late')
+        // resCtx.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+        // continue
+
+        console.log('SPRITE MISSED!')
+        spawnScorePopper(result.bad, beatIndex)
+
+        // // This sprite was MISSED
+        // Decrement the scorre/add a strike/whatever
+        sprite.hit = true
+        didHit = true
+
+        continue
+      }
+      if (sY <= ZONE_CHECK_TOP) {
+      // console.log('index', sI, 'too soon')
+        console.log('TOO SOON!')
+        // resCtx.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+        continue
+      // Shouldn't do anything about this one - just know that it will impac the score somehow.
+      }
+      if (sY < ZONE_CHECK_PERFECT_BOTTOM && sprite.y > ZONE_CHECK_PERFECT_TOP) {
+        console.log('... PERFECT ...')
+        spawnScorePopper(result.perfect, beatIndex)
+        // resCtx.drawImage(result.perfect, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+        sprite.hit = true
+        didHit = true
+        continue
+      }
+      if (sY < ZONE_CHECK_GOOD_BOTTOM && sprite.y > ZONE_CHECK_GOOD_TOP) {
+        console.log('... GOOD ...')
+        spawnScorePopper(result.good, beatIndex)
+        // resCtx.drawImage(result.good, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+        sprite.hit = true
+        didHit = true
+        continue
+      }
+      if (sY < ZONE_CHECK_OK_BOTTOM && sprite.y > ZONE_CHECK_OK_TOP) {
+        console.log('... OK ...')
+        spawnScorePopper(result.ok, beatIndex)
+        // resCtx.drawImage(result.ok, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+        sprite.hit = true
+        didHit = true
+        continue
+      }
+      if (sY < ZONE_CHECK_BOTTOM && sprite.y > ZONE_CHECK_TOP) {
+        console.log('... MEH ...')
+        spawnScorePopper(result.meh, beatIndex)
+        // resCtx.drawImage(result.meh, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+        sprite.hit = true
+        didHit = true
+        continue
+      }
+    }
+  }
+
+  if (!didHit) {
+    console.log('Did not hit anything!')
+    spawnScorePopper(result.bad, beatIndex)
+    // resCtx.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+  }
+}
+
+/* #endregion */
+
 /* #region ******** LEVELS ******** */
+
+function goToNextLevel() {
+  setCurrentLevel(currentLevel + 1)
+}
 
 function setCurrentLevel(i) {
   currentLevel = i
-  gamescene.children[0].text = `LEVEL ${currentLevel}`
-  levelStarted = false
-  spawnsComplete = false
-  clearMusicTrackers()
-  resetAllAssets()
+
+  if (i >= levels.length) {
+    console.log('OUT OF LEVELS')
+
+    setScene(gameoverscene)
+  }
+  else {
+    currentLevel = i
+    levelStarted = false
+    spawnsComplete = false
+    clearMusicTrackers()
+    resetAllAssets()
+    setScene(prelevelscene)
+  }
 }
 
 function resetAllAssets() {
@@ -370,11 +563,13 @@ function setSpawnsComplete() {
 
 function completeLevel() {
   console.log('Level Complete')
-  stopLevel()
+  setScene(postlevelscene)
 }
+
 function stopLevel() {
   setCurrentLevel(currentLevel + 1)
 }
+
 function startLevel() {
   songAudio = getNewSong(1)
   // if (currentLevel > 0) {
@@ -384,6 +579,8 @@ function startLevel() {
 }
 
 function parseLevels() {
+  // `levels` array is replaced with obejcts in the
+  // `makeLevel` function
   levels.forEach((lvl, i) => {
     lvl.data = {}
     lvl.length = lvl.image.width
@@ -395,34 +592,34 @@ function parseLevels() {
     let totalMeasures = 0
 
     // There will be 5 levels of height. 4 lanes, then metadata.
-    for (let i = 0; i < lvl.height; i += 1) {
-      lvl.data[i] = []
+    for (let n = 0; n < lvl.height; n += 1) {
+      lvl.data[n] = []
       let repeats = 0
 
       // Width is the number of beat `sections`
       // `sections` may repeat n times, specified in the height metadata
       for (let j = 0; j < lvl.width; j += 1) {
         // Process lanes 0 - 3 the same
-        const currentResult = lCtx.getImageData(j, i, 1, 1).data[0] === 0 ? 1 : ''
+        const currentResult = lCtx.getImageData(j, n, 1, 1).data[0] === 0 ? 1 : ''
 
-        if (i < 4) {
-          lvl.data[i].push(currentResult)
+        if (n < 4) {
+          lvl.data[n].push(currentResult)
         }
         // Process metadata to find repeats
         else {
-          const lookahead = lCtx.getImageData(j + 1, i, 1, 1).data[0] === 0 ? 1 : ''
+          const lookahead = lCtx.getImageData(j + 1, n, 1, 1).data[0] === 0 ? 1 : ''
 
           // If there is no result,
           if (!currentResult) {
-            lvl.data[i].push(currentResult)
+            lvl.data[n].push(currentResult)
           }
           else if (lookahead && j !== lvl.width - 1) {
             repeats += 1
             totalMeasures += 1
-            lvl.data[i].push('')
+            lvl.data[n].push('')
           }
           else if (currentResult && (!lookahead || j === lvl.width - 1)) {
-            lvl.data[i].push(repeats)
+            lvl.data[n].push(repeats)
             repeats = 0
           }
 
@@ -511,34 +708,50 @@ const gl = () => GameLoop({
           facilitateCurrentLevel()
         }
         break
+      case scenes.prelevelscene:
+        if (prelevelscene.children[0].opacity < 1
+          || prelevelscene.children[1].opacity < 1
+          || prelevelscene.children[2].opacity < 1) {
+          fadeIn(prelevelscene.children[0])
+          fadeIn(prelevelscene.children[1])
+          fadeIn(prelevelscene.children[2])
+        }
+        break
       case scenes.gamescene:
-        if (levelStarted) {
-          if (gamescene.children[0].opacity > 0) {
-            fadeOut(gamescene.children[0])
-          }
-          if (gamescene.children[1].opacity > 0) {
-            fadeOut(gamescene.children[1])
-          }
-          if (gamescene.children[2].opacity > 0) {
-            fadeOut(gamescene.children[2])
-          }
-          facilitateCurrentLevel()
-          if (spawnsComplete) {
-            if (beatsInTransit.length === 0) {
-              stopLevel()
-            }
+        if (
+          gamescene.children[0].opacity > 0
+            || gamescene.children[2].opacity > 0) {
+          fadeOut(gamescene.children[0])
+          fadeOut(gamescene.children[2])
+        }
+        if (gamescene.children[1].opacity < 1) {
+          fadeIn(gamescene.children[1])
+        }
+
+        facilitateCurrentLevel()
+
+        if (spawnsComplete) {
+          if (beatsInTransit.length === 0 && beatsToHittest.length === 0) {
+            completeLevel()
           }
         }
-        else {
-          if (gamescene.children[0].opacity < 1) {
-            fadeIn(gamescene.children[0])
-          }
-          if (gamescene.children[1].opacity < 1) {
-            fadeIn(gamescene.children[1])
-          }
-          if (gamescene.children[2].opacity < 1) {
-            fadeIn(gamescene.children[2])
-          }
+        break
+      case scenes.postlevelscene:
+        if (postlevelscene.children[0].opacity < 1
+          || postlevelscene.children[1].opacity < 1
+          || postlevelscene.children[2].opacity < 1) {
+          fadeIn(postlevelscene.children[0])
+          fadeIn(postlevelscene.children[1])
+          fadeIn(postlevelscene.children[2])
+        }
+        break
+      case scenes.gameoverscene:
+        if (gameoverscene.children[0].opacity < 1
+          || gameoverscene.children[1].opacity < 1
+          || gameoverscene.children[2].opacity < 1) {
+          fadeIn(gameoverscene.children[0])
+          fadeIn(gameoverscene.children[1])
+          fadeIn(gameoverscene.children[2])
         }
         break
       default:
@@ -555,12 +768,22 @@ const gl = () => GameLoop({
         renderAnyBeats()
         titlescene.render()
         break
+      case scenes.prelevelscene:
+        drawBackground()
+        prelevelscene.render()
+        break
       case scenes.gamescene:
         drawBackground()
-        if (levelStarted) {
-          renderAnyBeats()
-        }
+        renderAnyBeats()
+        renderAnyPoppers()
         gamescene.render()
+        break
+      case scenes.postlevelscene:
+        drawBackground()
+        postlevelscene.render()
+        break
+      case scenes.gameoverscene:
+        gameoverscene.render()
         break
       default:
         break
@@ -605,7 +828,6 @@ function scheduleNote(beatNumber, time) {
   // if (beatNumber % 16 === 0) {
   //   snare.trigger(time)
   // }
-  console.log('scheduling...')
 
   if (!audioStarted && audioReady === undefined) {
     audioReady = false
@@ -656,16 +878,21 @@ function moveBeats() {
   for (let i = 0; i < beatsInTransit.length; i += 1) {
     beatsInTransit[i].move(current16thNote, totalBeats)
   }
-  // for (let i = 0; i < beatsToHittest.length; i += 1) {
-  //   beatsToHittest[i].move(current16thNote, totalBeats)
-  // }
+  for (let i = 0; i < beatsToHittest.length; i += 1) {
+    beatsToHittest[i].move(current16thNote, totalBeats)
+  }
   // for (let i = 0; i < beatsToIgnore.length; i += 1) {
   //   beatsToIgnore[i].move(current16thNote, totalBeats)
   // }
 }
 
+function movePoppers() {
+  for (let i = 0; i < scorePoppers.length; i += 1) {
+    scorePoppers[i].update()
+  }
+}
+
 function checkForLevelSpawns() {
-  console.log('Checking level spawns...')
   for (let i = 0; i < 4; i += 1) {
     if (levels[currentLevel].data[i][sectionBeats]) {
       spawnBeat(i)
@@ -675,25 +902,22 @@ function checkForLevelSpawns() {
   const repeats = levels[currentLevel].data[4][sectionBeats]
 
   if (repeats) {
-    console.log('Repeats...')
     levels[currentLevel].data[4][sectionBeats] -= 1
     sectionRepeats = levels[currentLevel].data[4][sectionBeats]
     sectionBeats -= beatsSinceRepeat
     beatsSinceRepeat = 0
   }
   else if (repeats === 0) {
-    console.log('Repeats are ZERO')
     levels[currentLevel].data[4][sectionBeats] = ''
     beatsSinceRepeat = 0
   }
   else {
-    console.log('Done with both', sectionBeats, levels[currentLevel].data[4].length)
     beatsSinceRepeat += 1
     sectionBeats += 1
 
     if (sectionBeats === levels[currentLevel].data[4].length) {
       // console.log('SPAWNS COMPLETE!!')
-      console.log('TODO: Mark all spawns complete')
+      console.log('All spawns complete!')
       setSpawnsComplete()
     }
   }
@@ -702,18 +926,24 @@ function checkForLevelSpawns() {
 function facilitateCurrentLevel() {
   scheduler()
   moveBeats()
+  movePoppers()
 }
 
 function renderAnyBeats() {
   for (let i = 0; i < beatsInTransit.length; i += 1) {
     beatsInTransit[i].render()
   }
-  // for (let i = 0; i < beatsToHittest.length; i += 1) {
-  //   beatsToHittest[i].render()
-  // }
+  for (let i = 0; i < beatsToHittest.length; i += 1) {
+    beatsToHittest[i].render()
+  }
   // for (let i = 0; i < beatsToIgnore.length; i += 1) {
   //   beatsToIgnore[i].render()
   // }
+}
+function renderAnyPoppers() {
+  for (let i = 0; i < scorePoppers.length; i += 1) {
+    scorePoppers[i].render()
+  }
 }
 
 // // Currently replaced by metronome scheduler
@@ -758,40 +988,39 @@ function drawBackground() {
 function handleKeyboardControl(event) {
   switch (scene.id) {
     case scenes.introscene:
-      switch (event.code) {
-        case 'Space':
-          setScene(titlescene)
-          break
-        default:
-          break
+      if (event.code === 'Space') {
+        setScene(titlescene)
       }
       break
     case scenes.titlescene:
-      switch (event.code) {
-        case 'Space':
-          setScene(gamescene)
-          break
-        case 'KeyT':
-          if (!levelStarted) {
-            startLevel()
-          }
-          break
-        default:
-          playFromKeycode(event.code)
-          break
+      if (event.code === 'Space') {
+        goToNextLevel()
+      }
+      else if (event.code === 'KeyT') {
+        if (!levelStarted) {
+          startLevel()
+        }
+      }
+      else {
+        playFromKeycode(event.code)
+      }
+      break
+    case scenes.prelevelscene:
+      if (event.code === 'Space') {
+        setScene(gamescene)
       }
       break
     case scenes.gamescene:
-      switch (event.code) {
-        case 'Space':
-          if (!levelStarted) {
-            console.log('Beats in Transit', beatsInTransit)
-            startLevel()
-          }
-          break
-        default:
-          playFromKeycode(event.code)
-          break
+      if (event.code === 'Space') {
+        console.log('TODO: Implement Pause')
+      }
+      else {
+        playFromKeycode(event.code)
+      }
+      break
+    case scenes.postlevelscene:
+      if (event.code === 'Space') {
+        goToNextLevel()
       }
       break
     default:
@@ -809,7 +1038,7 @@ function playFromKeycode(code) {
       // zzfx(...[,0,75,,,.75,,,-0.1,,,,,,,,,.9,.1])
       // zzfx(...[,0,75,,,.45,,,-0.1,-0.2,,,,,,,,.9,.1])
       // zzfx(...[,0,75,,,.45,,,-0.1,-0.2,,,,,,,,.9,.1])
-      // checkCollision(lanesO.bass)
+      checkCollision(0)
       break
     case 'KeyF':
       kick.trigger(aCtx.currentTime)
@@ -818,17 +1047,17 @@ function playFromKeycode(code) {
       // zzfx(...[,0,110,,,.05,1,.8,-0.2,-0.4,,,,,,,,.5,.29])
       // zzfx(...[,0,115,,,.45,,,-0.1,-0.2,,,,,,,,.9,.1])
       // zzfx(...[,0,125,,,.5,,,-0.2,-0.1,,,,,,,,.5,.05])
-      // checkCollision(lanesO.kick)
+      checkCollision(1)
       break
     case 'KeyJ':
       snare.trigger(aCtx.currentTime)
       // lanesO.snare.play()
-      // checkCollision(lanesO.snare)
+      checkCollision(2)
       break
     case 'KeyK':
       hihat.trigger(aCtx.currentTime)
       // lanesO.hihat.play()
-      // checkCollision(lanesO.hihat)
+      checkCollision(3)
       break
     default:
       return
@@ -996,7 +1225,7 @@ function initScenes() {
       }),
     ],
     onShow() {
-      setCurrentLevel(0)
+      setCurrentLevel(2)
       initBeats(true)
       this.children[0].text = introStrings[5]
       this.children[0].color = COLORS.bad
@@ -1024,8 +1253,23 @@ function initScenes() {
       introscene.children[2],
     ],
     onShow() {
-      setCurrentLevel(1)
       initBeats()
+      startLevel()
+      this.children[1].y = 100
+      this.children[1].opacity = 0
+      this.children[1].color = COLORS.perfect
+      this.children[1].text = `SCORE:\n${score}`
+      this.children[1].font = gFont(30)
+    },
+  })
+  prelevelscene = Scene({
+    id: scenes.prelevelscene,
+    children: [
+      introscene.children[1],
+      introscene.children[0],
+      introscene.children[2],
+    ],
+    onShow() {
       this.children[0].text = `LEVEL ${currentLevel}`
       this.children[0].color = COLORS.bad
       this.children[2].text = 'START\n[ space ]',
@@ -1037,11 +1281,48 @@ function initScenes() {
       this.children[1].text = 'Are you ready?'
       this.children[1].font = gFont(30)
     },
+    onhide() {},
   })
-  reviewscene = Scene({
-    id: scenes.reviewscene,
-    children: [],
-    onShow() {},
+  postlevelscene = Scene({
+    id: scenes.postlevelscene,
+    children: [
+      introscene.children[1],
+      introscene.children[0],
+      introscene.children[2],
+    ],
+    onShow() {
+      this.children[0].text = `LEVEL ${currentLevel}\nCOMPLETE`
+      this.children[0].color = COLORS.bad
+      this.children[2].text = 'NEXT\n[ space ]',
+      this.children[0].opacity = 0
+      this.children[2].opacity = 0
+      this.children[1].y = 350
+      this.children[1].opacity = 0
+      this.children[1].color = COLORS.perfect
+      this.children[1].text = 'How did you do?'
+      this.children[1].font = gFont(30)
+    },
+    onhide() {},
+  })
+  gameoverscene = Scene({
+    id: scenes.gameoverscene,
+    children: [
+      introscene.children[1],
+      introscene.children[0],
+      introscene.children[2],
+    ],
+    onShow() {
+      this.children[0].text = 'MANUAL\nREPROGRAM\nCOMPLETE'
+      this.children[0].color = COLORS.bad
+      this.children[2].text = '',
+      this.children[0].opacity = 0
+      this.children[2].opacity = 0
+      this.children[1].y = 350
+      this.children[1].opacity = 0
+      this.children[1].color = COLORS.perfect
+      this.children[1].text = 'Thank you for\nplaying!!'
+      this.children[1].font = gFont(30)
+    },
     onhide() {},
   })
 }
