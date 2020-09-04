@@ -75,7 +75,7 @@ let score = 0x0000000
 let audioReady = undefined
 
 let loadedLevels = 0
-// const levels = [lt, l0, l1, l2, l3, l4, l5]
+// const levels = [lt, l0, l1, l2, l3, l4, l5, l6]
 const levels = [lt, l6, l1, l2]
 
 let beatsInTransit = []
@@ -292,12 +292,13 @@ const getSong2 = () => (
     [
       [
         [7, 0, , 21, 23, 23, 23, 23, , 23, 23, 23, , 23, 23, 23, 23, 23],
-        // [7, 0, , 4, 2, 0, -1, , -1, -1, 0, -1, -1, -3, -5, -3, -1, -1],
+        [7, 0, ,   ,  9, 11, 11, 11,11,  , 11, 11,11,  , 11, 11, 11, 11], 
         // [3, 0, ,,, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
         // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
       ],
       [
-        [7, 0, 23, 21, 23, 21, 23, , 28, 26, 26, 21, 23, 21, 23, 23, 23, 23],
+        [7, 0, 23, 21, 23, 21, 23, 23, 28, 26, 26, 21, 23, 21, 23, 23, 23, 23],
+        [7, 0,   , 11,  9, 11,  9, 11, 11, 16, 14, 14, 11,  9, 11,  9, 11, 11],
         // [7, 0, , 0, -1, -1, -3, -5, -3, -1, , 0, 0, -1, -1, -1, -1,],
         // [7, 0, 0, 7, 7, 11, 7, 14, 7, 14, 12, 5, 5, 9, 5, 12, 5, 12, 11],
         // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
@@ -306,7 +307,7 @@ const getSong2 = () => (
       ],
       [
         [7, 0, , 21, 23, 23, 23, 23, , 23, 23, 23, , 23, 23, 23, 23, 23],
-        // [7, 0, , 4, 2, 0, -1, , -1, -1, 0, -1, -1, -3, -5, -3, -1, -1],
+        [7, 0, , , 9, 11, 11, 11, 11, , 11, 11, 11, , 11, 11, 11, 11],
         // [3, 0, ,,, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
         // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
       ],
@@ -971,14 +972,11 @@ function checkForLevelSpawns() {
     }
   }
 
-  console.log('Checking for spawns', levelRepeats[sectionBeats])
   const repeats = levelRepeats[sectionBeats]
-
-  console.log('REPEATS', repeats, levelRepeats[sectionBeats])
 
   if (repeats) {
     levelRepeats[sectionBeats] -= 1
-    sectionRepeats = levelRepeats[sectionBeats]
+    // sectionRepeats = levelRepeats[sectionBeats]
     sectionBeats -= beatsSinceRepeat
     beatsSinceRepeat = 0
   }
@@ -1178,7 +1176,8 @@ function initGame() {
   initScenes()
 
   // introscene.show()
-  setScene(introscene)
+  // setScene(introscene)
+  setScene(titlescene)
 }
 
 function getElements() {
