@@ -1044,6 +1044,9 @@ function renderAnyPoppers() {
 /* #region ******** DRAWING ******** */
 
 function drawBackground() {
+  drawDebugZones(context)
+  drawRows(context)
+
   // DRAW ZONE:
   context.fillStyle = '#ffffff'
   context.strokeStyle = '#ffffff'
@@ -1060,6 +1063,7 @@ function drawBackground() {
   context.fillRect(SNARE_X, 0, 1, BOARD_HEIGHT)
   // hihat
   context.fillRect(HIHAT_X, 0, 1, BOARD_HEIGHT)
+
 }
 /* #endregion */
 
@@ -1182,8 +1186,8 @@ function initGame() {
   initBeats()
   initScenes()
 
-  setScene(introscene)
-  // setScene(titlescene)
+  // setScene(introscene)
+  setScene(titlescene)
 }
 
 function getElements() {
@@ -1195,7 +1199,7 @@ function getElements() {
 function initConstants() {
   VIEW_HEIGHT = window.innerHeight
   BOARD_HEIGHT = VIEW_HEIGHT
-  VIEW_WIDTH = window.innerWidth
+  // VIEW_WIDTH = window.innerWidth
   SECTION_HEIGHT = Math.floor(VIEW_HEIGHT / HORIZONTAL_SECTIONS)
   MOVE_SPEED = SECTION_HEIGHT / (FPS * TIME_PER_TICK)
   CANVAS_WIDTH = SECTION_HEIGHT * 5
@@ -1204,7 +1208,7 @@ function initConstants() {
 
   console.log(BOARD_HEIGHT, HORIZONTAL_SECTIONS, SECTION_HEIGHT)
 
-  ZONE_HEIGHT = SECTION_HEIGHT * 1.5
+  // ZONE_HEIGHT = SECTION_HEIGHT * 1.5
   ZONE_TOP = (Math.floor(BOARD_HEIGHT / HORIZONTAL_SECTIONS) * (HORIZONTAL_SECTIONS - 2)) - (SECTION_HEIGHT * 1.5)
   ZONE_CHECK_TOP = ZONE_TOP - (SECTION_HEIGHT / 1.1)
   ZONE_CHECK_BOTTOM = (SECTION_HEIGHT * 15) - (SECTION_HEIGHT / 2)
@@ -1478,4 +1482,44 @@ function blinkOverTime(c, t, dur, el) {
   }
 }
 
+/* #endregion */
+
+/* #region ******** DEBUG ******** */
+const drawRows = (pCtx) => {
+  for (let i = 0; i < HORIZONTAL_SECTIONS; i += 1) {
+    pCtx.save()
+    pCtx.strokeStyle = 'blue'
+    pCtx.strokeRect(0, SECTION_HEIGHT * i, CANVAS_WIDTH, SECTION_HEIGHT)
+    pCtx.restore()
+  }
+}
+
+function drawDebugZones(pCtx) {
+  const colors = ['red', 'orange', 'yellow', 'green', 'blue']
+  const zoneArr = [
+    [ZONE_CHECK_TOP, ZONE_CHECK_BOTTOM],
+    // [ZONE_CHECK_MEH_TOP, ZONE_CHECK_MEH_BOTTOM],
+    [ZONE_CHECK_OK_TOP, ZONE_CHECK_OK_BOTTOM],
+    [ZONE_CHECK_GOOD_TOP, ZONE_CHECK_GOOD_BOTTOM],
+    [ZONE_CHECK_PERFECT_TOP, ZONE_CHECK_PERFECT_BOTTOM],
+  ]
+
+  zoneArr.forEach(([top, bottom], i) => {
+    const x = 50 + (4 * (i + 1))
+    const y = top
+
+    pCtx.fillStyle = colors[i]
+    pCtx.fillRect(x, y, 4, bottom - top)
+    // const el = document.createElement('div')
+
+    // el.style.position = 'absolute'
+    // el.style.width = '4px'
+    // el.style.backgroundColor = colors[i]
+    // el.style.top = convertPx(top)
+    // el.style.left = convertPx(50 + (4 * (i + 1)))
+    // el.style.height = convertPx(bottom - top)
+
+    // board.appendChild(el)
+  })
+}
 /* #endregion */
