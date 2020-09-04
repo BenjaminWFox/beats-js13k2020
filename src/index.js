@@ -204,30 +204,51 @@ const getSong0 = () => (
       // Keep 3 beats before first notes to align this with the metronome...
       // Seems to give the best results.
       [
-        [7, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-        [3, 0, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
+        // [7, 0, ,,,,,,,23,,,,,,,,],
+        [3, 0, ,,,,,,],
+        [3, 0, ,,,,,,],
         // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
       ],
       [
-        [7, 0, 19, 19, 23, 19, 26, 19, 26, 24, 17, 17, 21, 17, 24, 17, 24, 23],
-        [7, 0, 0, 7, 7, 11, 7, 14, 7, 14, 12, 5, 5, 9, 5, 12, 5, 12, 11],
-        // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-        // [5, 0, 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18, 14],
-        // [4, 0, , 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18],
-      ],
-      [
-        [7, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-        [3, 0, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
+        // [7, 0, ,,,,,,,23,,,,,,,,],
+        [3, 0, 21,  , 9,  , 9,  , 9,  ,21,  , 9,  , 9,  , 9,  ,],
+        [3, 0, 21,-3,-3,-3,-3,-3,-3,-3,21,-3,-3,-3,-3,-3,-3, -3],
         // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
       ],
+      // [
+      //   [7, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+      //   [3, 0, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
+      //   // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+      // ],
+      // [
+      //   [7, 0, 19, 19, 23, 19, 26, 19, 26, 24, 17, 17, 21, 17, 24, 17, 24, 23],
+      //   [7, 0, 0, 7, 7, 11, 7, 14, 7, 14, 12, 5, 5, 9, 5, 12, 5, 12, 11],
+      //   // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+      //   // [5, 0, 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18, 14],
+      //   // [4, 0, , 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18],
+      // ],
+      // [
+      //   [7, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+      //   [3, 0, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
+      //   // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+      // ],
     ],
     [
       0,
       1,
-      2,
       1,
-      2,
-      1
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
     ],
     60,
   ])
@@ -292,8 +313,8 @@ const getSong2 = () => (
     ],
     [
       [
-        [7, 0, , 21, 23, 23, 23, 23, , 23, 23, 23, , 23, 23, 23, 23, 23],
-        [7, 0, ,   ,  9, 11, 11, 11,11,  , 11, 11,11,  , 11, 11, 11, 11], 
+        [7, 0, 21, 23, 23, 23, 23, , 23, 23, 23, , 23, 23, 23, 23, 23, 23],
+        [7, 0, ,  9, 11, 11, 11,11,  , 11, 11,11,  , 11, 11, 11, 11, 23], 
         // [3, 0, ,,, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
         // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
       ],
@@ -307,8 +328,8 @@ const getSong2 = () => (
         // [4, 0, , 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18],
       ],
       [
-        [7, 0, , 21, 23, 23, 23, 23, , 23, 23, 23, , 23, 23, 23, 23, 23],
-        [7, 0, , , 9, 11, 11, 11, 11, , 11, 11, 11, , 11, 11, 11, 11],
+        [7, 0, 21, 23, 23, 23, 23, , 23, 23, 23, , 23, 23, 23, 23, 23, 23],
+        [7, 0, ,  9, 11, 11, 11,11,  , 11, 11,11,  , 11, 11, 11, 11, 23], 
         // [3, 0, ,,, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
         // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
       ],
@@ -324,10 +345,16 @@ const getSong2 = () => (
     60,
   ]
 )
+const SONGS = [
+  getSong0(),
+  getSong1(),
+  getSong2(),
+]
 let songAudio
 let audioStarted
+
 function getNewSong(i) {
-  let s = i===1 ? getSong2() : getSong2()
+  let s = SONGS[i]
   let sD = zzfxM(...s)
   return zzfxP(...sD)
 }
@@ -402,9 +429,10 @@ function spawnScorePopper(res, i) {
 
 function BeatSprite(i) {
   this.id = uuidv4()
+  this.startTime = aCtx.currentTime
   this.index = i
   this.beat = beats[i]
-  this.y = -SECTION_HEIGHT
+  this.y = -(SECTION_HEIGHT)
   this.x = this.beat.x - (SECTION_HEIGHT / 2)
   this.image = this.beat.image
   this.hit = false
@@ -412,21 +440,30 @@ function BeatSprite(i) {
   this.zone = -1
   this.phase = 0
 
+  console.log('CREATING SPRITE', this.id, this.y)
+
   this.move = function (measureBeat, totalBeats) {
     if (!this.beat) {
       this.beat = totalBeats
     }
 
-    if (currentLevel === 0 && this.y > (ZONE_TOP + (SECTION_HEIGHT / 8))) {
-      // do nothign...
+    if (currentLevel === 0 && this.y >= (ZONE_TOP)) {
+      this.y = ZONE_TOP
     }
     else {
       this.y += MOVE_SPEED
 
+      console.log('Moving...', this.y)
+
+      // console.log(this.beat, totalBeats)
+
       if (this.beat < totalBeats) {
         this.zone += 1
         this.beat = totalBeats
+
+        console.log('Reconciling...', this.beat, totalBeats, this.y, SECTION_HEIGHT * this.zone)
         this.y = SECTION_HEIGHT * this.zone
+        // console.log('Time reconciler', aCtx.currentTime, this.startTime + (TIME_PER_TICK * this.zone))
       }
     }
     // Reconciliation between animation and audio
@@ -533,25 +570,25 @@ function checkCollision(beatIndex) {
           continue
           // Shouldn't do anything about this one - just know that it will impac the score somehow.
         }
-        if (sY < ZONE_CHECK_PERFECT_BOTTOM && sprite.y > ZONE_CHECK_PERFECT_TOP) {
+        if (sY < ZONE_CHECK_PERFECT_BOTTOM && sprite.y >= ZONE_CHECK_PERFECT_TOP) {
           // console.log('... PERFECT ...')
           spawnScorePopper(result.perfect, beatIndex)
           didHit = setHit(sprite)
           continue
         }
-        if (sY < ZONE_CHECK_GOOD_BOTTOM && sprite.y > ZONE_CHECK_GOOD_TOP) {
+        if (sY < ZONE_CHECK_GOOD_BOTTOM && sprite.y >= ZONE_CHECK_GOOD_TOP) {
           // console.log('... GOOD ...')
           spawnScorePopper(result.good, beatIndex)
           didHit = setHit(sprite)
           continue
         }
-        if (sY < ZONE_CHECK_OK_BOTTOM && sprite.y > ZONE_CHECK_OK_TOP) {
+        if (sY < ZONE_CHECK_OK_BOTTOM && sprite.y >= ZONE_CHECK_OK_TOP) {
           // console.log('... OK ...')
           spawnScorePopper(result.ok, beatIndex)
           didHit = setHit(sprite)
           continue
         }
-        if (sY < ZONE_CHECK_BOTTOM && sprite.y > ZONE_CHECK_TOP) {
+        if (sY < ZONE_CHECK_BOTTOM && sprite.y >= ZONE_CHECK_TOP) {
           // console.log('... MEH ...')
           spawnScorePopper(result.meh, beatIndex)
           didHit = setHit(sprite)
@@ -634,7 +671,7 @@ function stopLevel() {
 }
 
 function startLevel() {
-  songAudio = getNewSong(1)
+  songAudio = getNewSong(0)
   // if (currentLevel > 0) {
   //   songAudio.start()
   // }
@@ -778,9 +815,7 @@ const gl = () => GameLoop({
         }
 
         if (levelStarted) {
-          console.log('Started')
           if (titlescene.children[3].opacity > 0) {
-            console.log('fadeout')
             fadeOut(titlescene.children[3])
           }
 
@@ -923,10 +958,14 @@ function scheduleNote(beatNumber, time) {
     songAudio.start(time)
     // snare.trigger(time)
     audioStarted = true
+
+    totalBeats += 1
   }
 
   if (audioStarted) {
     checkForLevelSpawns()
+
+    totalBeats += 1
   }
 
   // // quarter notes = medium pitch .s
@@ -973,6 +1012,7 @@ function movePoppers() {
 }
 
 function checkForLevelSpawns() {
+  console.log('Running spawn checker')
   for (let i = 0; i < 4; i += 1) {
     if (levels[currentLevel].data[i][sectionBeats]) {
       spawnBeat(i)
@@ -1051,7 +1091,7 @@ function drawBackground() {
   context.fillStyle = '#ffffff'
   context.strokeStyle = '#ffffff'
   context.setLineDash([4, 6])
-  context.strokeRect(-2, ZONE_TOP, CANVAS_WIDTH + 4, SECTION_HEIGHT * 1.5)
+  context.strokeRect(-2, ZONE_TOP, CANVAS_WIDTH + 4, ZONE_HEIGHT)
 
   // bass
   context.fillStyle = '#222222'
@@ -1208,10 +1248,10 @@ function initConstants() {
 
   console.log(BOARD_HEIGHT, HORIZONTAL_SECTIONS, SECTION_HEIGHT)
 
-  // ZONE_HEIGHT = SECTION_HEIGHT * 1.5
-  ZONE_TOP = (Math.floor(BOARD_HEIGHT / HORIZONTAL_SECTIONS) * (HORIZONTAL_SECTIONS - 2)) - (SECTION_HEIGHT * 1.5)
-  ZONE_CHECK_TOP = ZONE_TOP - (SECTION_HEIGHT / 1.1)
-  ZONE_CHECK_BOTTOM = (SECTION_HEIGHT * 15) - (SECTION_HEIGHT / 2)
+  ZONE_HEIGHT = SECTION_HEIGHT
+  ZONE_TOP = (Math.floor(BOARD_HEIGHT / HORIZONTAL_SECTIONS) * (HORIZONTAL_SECTIONS - 2)) - (SECTION_HEIGHT)
+  ZONE_CHECK_TOP = ZONE_TOP - (SECTION_HEIGHT)
+  ZONE_CHECK_BOTTOM = (SECTION_HEIGHT * 15)
   // ZONE_CHECK_MEH_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
   // ZONE_CHECK_MEH_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
   ZONE_CHECK_OK_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
