@@ -12,6 +12,7 @@ import l2 from './assets/images/levels/l2.png'
 import l3 from './assets/images/levels/l3.png'
 import l4 from './assets/images/levels/l4.png'
 import l5 from './assets/images/levels/l5.png'
+import l6 from './assets/images/levels/l6.png'
 /* #endregion */
 
 /* #region ******** CONSTANTS & GLOBAL VARS ******** */
@@ -66,6 +67,7 @@ let prelevelscene
 let postlevelscene
 let gameoverscene
 let currentLevel
+let levelRepeats
 let levelStarted = false
 let spawnsComplete = false
 let loop
@@ -74,7 +76,7 @@ let audioReady = undefined
 
 let loadedLevels = 0
 // const levels = [lt, l0, l1, l2, l3, l4, l5]
-const levels = [lt, l0, l1, l2]
+const levels = [lt, l6, l1, l2]
 
 let beatsInTransit = []
 let beatsToHittest = []
@@ -135,7 +137,6 @@ const result = {
 let beats
 
 function setScene(s) {
-  console.log('Setting scene', s)
   s.show()
   scene = s
 }
@@ -147,6 +148,14 @@ function setScene(s) {
 const $ = document.querySelector.bind(document)
 const convertPx = (n) => `${n}px`
 
+function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = Math.random() * 16 | 0
+    const v = c == 'x' ? r : (r & 0x3 | 0x8)
+
+    return v.toString(16)
+  })
+}
 /* #endregion */
 
 /* #region ******** AUDIO ******** */
@@ -236,8 +245,8 @@ const getSong1 = () => (
     ],
     [
       [
-        [7, 0, , , , 16, 16, 14, 12, 11, , 11, 11, 12, 11, 11, 9, 7, 9, 11, 11],
-        [7, 0, , , , , 4, 2, 0, -1, , -1, -1, 0, -1, -1, -3, -5, -3, -1, -1],
+        [7, 0, 16, 16, 14, 12, 11, , 11, 11, 12, 11, 11, 9, 7, 9, 11, 11],
+        [7, 0, , 4, 2, 0, -1, , -1, -1, 0, -1, -1, -3, -5, -3, -1, -1],
         // [3, 0, ,,, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
         // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
       ],
@@ -250,8 +259,8 @@ const getSong1 = () => (
         // [4, 0, , 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18],
       ],
       [
-        [7, 0, , , , 16, 16, 14, 12, 11, , 11, 11, 12, 11, , 9, 7, 9, 11, 11],
-        [7, 0, , , , , 4, 2, 0, -1, , -1, -1, 0, -1, -1, -2, -4, -2, -1, -1],
+        [7, 0, 16, 16, 14, 12, 11, , 11, 11, 12, 11, , 9, 7, 9, 11, 11],
+        [7, 0, , 4, 2, 0, -1, , -1, -1, 0, -1, -1, -2, -4, -2, -1, -1],
         // [3, 0, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
         // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
       ],
@@ -259,6 +268,56 @@ const getSong1 = () => (
     [
       0,
       1,
+      2,
+      1,
+      2,
+      1
+    ],
+    60,
+  ]
+)
+// we will rock you
+const getSong2 = () => (
+  [
+    [
+      [1, 0, 50],
+      [1, 0, 100],
+      [1, 0, 150],
+      [1, 0, 200],
+      [1, 0, 250],
+      [1, 0, 300],
+      [1, 0, 350],
+      [1, 0, 400],
+    ],
+    [
+      [
+        [7, 0, , 21, 23, 23, 23, 23, , 23, 23, 23, , 23, 23, 23, 23, 23],
+        // [7, 0, , 4, 2, 0, -1, , -1, -1, 0, -1, -1, -3, -5, -3, -1, -1],
+        // [3, 0, ,,, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
+        // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+      ],
+      [
+        [7, 0, 23, 21, 23, 21, 23, , 28, 26, 26, 21, 23, 21, 23, 23, 23, 23],
+        // [7, 0, , 0, -1, -1, -3, -5, -3, -1, , 0, 0, -1, -1, -1, -1,],
+        // [7, 0, 0, 7, 7, 11, 7, 14, 7, 14, 12, 5, 5, 9, 5, 12, 5, 12, 11],
+        // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+        // [5, 0, 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18, 14],
+        // [4, 0, , 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18],
+      ],
+      [
+        [7, 0, , 21, 23, 23, 23, 23, , 23, 23, 23, , 23, 23, 23, 23, 23],
+        // [7, 0, , 4, 2, 0, -1, , -1, -1, 0, -1, -1, -3, -5, -3, -1, -1],
+        // [3, 0, ,,, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
+        // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
+      ],
+    ],
+    [
+      0,
+      1,
+      2,
+      1,
+      2,
+      1
     ],
     60,
   ]
@@ -266,7 +325,7 @@ const getSong1 = () => (
 let songAudio
 let audioStarted
 function getNewSong(i) {
-  let s = i===1 ? getSong0() : getSong1()
+  let s = i===1 ? getSong2() : getSong2()
   let sD = zzfxM(...s)
   return zzfxP(...sD)
 }
@@ -303,7 +362,6 @@ function PopperSprite(res, x, i) {
       this.sprite.y -= 2
     }
     else {
-      console.log('Popping!')
       scorePoppers.pop()
     }
   }
@@ -341,6 +399,7 @@ function spawnScorePopper(res, i) {
 /* #region ******** BEATS ******** */
 
 function BeatSprite(i) {
+  this.id = uuidv4()
   this.index = i
   this.beat = beats[i]
   this.y = -SECTION_HEIGHT
@@ -372,9 +431,11 @@ function BeatSprite(i) {
     // We know where the beat SHOULD be every measure (16 16th notes)
 
     if (this.phase === 0 && this.y > ZONE_TOP - SECTION_HEIGHT) {
-      beatsInTransit.pop()
-      beatsToHittest.unshift(this)
-      this.phase = 1
+      if (this.id === beatsInTransit[beatsInTransit.length - 1].id) {
+        beatsInTransit.pop()
+        beatsToHittest.unshift(this)
+        this.phase = 1
+      }
     }
     // if (this.y > SECTION_HEIGHT * 15) {
     //   beatsToHittest.pop()
@@ -387,8 +448,6 @@ function BeatSprite(i) {
         console.log('Hey, you missed this one...')
       }
       beatsToHittest.pop()
-
-      console.log(beatsToHittest)
     }
     // if (!this.played && this.y > ZONE_TOP) {
     //   this.parent.play()
@@ -451,62 +510,48 @@ function checkCollision(beatIndex) {
       const sprite = beatsToHittest[sI]
 
       if (sprite.index !== beatIndex) {
-        console.log('Current sprite not in this lane')
+        // console.log('Current sprite not in this lane')
 
         continue
       }
 
       const sY = Math.floor(sprite.y)
 
-      console.log('Testing sprite', sprite, sY, sprite.hit)
-
       if (!sprite.hit) {
         if (sY >= ZONE_CHECK_BOTTOM) {
-          // console.log('index', sI, 'too late')
-          // resCtx.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
-          // continue
-
-          console.log('SPRITE MISSED!')
+          // console.log('SPRITE MISSED!')
           spawnScorePopper(result.bad, beatIndex)
 
-          // // This sprite was MISSED
-          // Decrement the scorre/add a strike/whatever
           didHit = setHit(sprite)
 
           continue
         }
         if (sY <= ZONE_CHECK_TOP) {
-        // console.log('index', sI, 'too soon')
-          console.log('TOO SOON!')
-          // resCtx.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+          // console.log('TOO SOON!')
           continue
-        // Shouldn't do anything about this one - just know that it will impac the score somehow.
+          // Shouldn't do anything about this one - just know that it will impac the score somehow.
         }
         if (sY < ZONE_CHECK_PERFECT_BOTTOM && sprite.y > ZONE_CHECK_PERFECT_TOP) {
-          console.log('... PERFECT ...')
+          // console.log('... PERFECT ...')
           spawnScorePopper(result.perfect, beatIndex)
-          // resCtx.drawImage(result.perfect, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
           didHit = setHit(sprite)
           continue
         }
         if (sY < ZONE_CHECK_GOOD_BOTTOM && sprite.y > ZONE_CHECK_GOOD_TOP) {
-          console.log('... GOOD ...')
+          // console.log('... GOOD ...')
           spawnScorePopper(result.good, beatIndex)
-          // resCtx.drawImage(result.good, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
           didHit = setHit(sprite)
           continue
         }
         if (sY < ZONE_CHECK_OK_BOTTOM && sprite.y > ZONE_CHECK_OK_TOP) {
-          console.log('... OK ...')
+          // console.log('... OK ...')
           spawnScorePopper(result.ok, beatIndex)
-          // resCtx.drawImage(result.ok, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
           didHit = setHit(sprite)
           continue
         }
         if (sY < ZONE_CHECK_BOTTOM && sprite.y > ZONE_CHECK_TOP) {
-          console.log('... MEH ...')
+          // console.log('... MEH ...')
           spawnScorePopper(result.meh, beatIndex)
-          // resCtx.drawImage(result.meh, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
           didHit = setHit(sprite)
           continue
         }
@@ -514,11 +559,10 @@ function checkCollision(beatIndex) {
     }
 
     if (!didHit) {
-      console.log('Did not hit anything!')
+      // console.log('Did not hit anything!')
       if (scene.id === scenes.gamescene) {
         spawnScorePopper(result.bad, beatIndex)
       }
-      // resCtx.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
     }
   }
 }
@@ -567,11 +611,13 @@ function resetAllAssets() {
   beatsInTransit = []
   beatsToHittest = []
   scorePoppers = []
+  levelRepeats = [...levels[currentLevel].data[4]]
   if (audioStarted) {
     audioStarted = false
     songAudio.stop()
   }
 }
+
 function setSpawnsComplete() {
   spawnsComplete = true
 }
@@ -925,25 +971,28 @@ function checkForLevelSpawns() {
     }
   }
 
-  const repeats = levels[currentLevel].data[4][sectionBeats]
+  console.log('Checking for spawns', levelRepeats[sectionBeats])
+  const repeats = levelRepeats[sectionBeats]
+
+  console.log('REPEATS', repeats, levelRepeats[sectionBeats])
 
   if (repeats) {
-    levels[currentLevel].data[4][sectionBeats] -= 1
-    sectionRepeats = levels[currentLevel].data[4][sectionBeats]
+    levelRepeats[sectionBeats] -= 1
+    sectionRepeats = levelRepeats[sectionBeats]
     sectionBeats -= beatsSinceRepeat
     beatsSinceRepeat = 0
   }
   else if (repeats === 0) {
-    levels[currentLevel].data[4][sectionBeats] = ''
+    levelRepeats[sectionBeats] = ''
     beatsSinceRepeat = 0
   }
   else {
     beatsSinceRepeat += 1
     sectionBeats += 1
 
-    if (sectionBeats === levels[currentLevel].data[4].length) {
+    if (sectionBeats === levelRepeats.length) {
       // console.log('SPAWNS COMPLETE!!')
-      console.log('All spawns complete!')
+      console.log('All spawns complete!', sectionBeats, levelRepeats.length)
       setSpawnsComplete()
     }
   }
