@@ -71,17 +71,18 @@ let levelRepeats
 let levelStarted = false
 let spawnsComplete = false
 let loop
-let score = 0x0000000
+let score = 0
 let audioReady = undefined
 
 let loadedLevels = 0
-// const levels = [lt, l0, l1, l2, l3, l4, l5, l6]
-const levels = [lt, l6, l1, l2]
+const levels = [lt, l0, l1, l2, l3, l4, l5, l6]
+// const levels = [lt, l6, l1, l2]
 
 let beatsInTransit = []
 let beatsToHittest = []
 let beatsToIgnore = []
 let scorePoppers = []
+
 const clearAllBeats = () => {
   beatsInTransit = []
   beatsToHittest = []
@@ -777,6 +778,12 @@ const gl = () => GameLoop({
         }
 
         if (levelStarted) {
+          console.log('Started')
+          if (titlescene.children[3].opacity > 0) {
+            console.log('fadeout')
+            fadeOut(titlescene.children[3])
+          }
+
           facilitateCurrentLevel()
         }
         break
@@ -1175,9 +1182,8 @@ function initGame() {
   initBeats()
   initScenes()
 
-  // introscene.show()
-  // setScene(introscene)
-  setScene(titlescene)
+  setScene(introscene)
+  // setScene(titlescene)
 }
 
 function getElements() {
