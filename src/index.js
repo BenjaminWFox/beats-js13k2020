@@ -13,6 +13,7 @@ import l3 from './assets/images/levels/l3.png'
 import l4 from './assets/images/levels/l4.png'
 import l5 from './assets/images/levels/l5.png'
 import l6 from './assets/images/levels/l6.png'
+import ltest from './assets/images/levels/ltest.png'
 /* #endregion */
 
 /* #region ******** CONSTANTS & GLOBAL VARS ******** */
@@ -76,7 +77,7 @@ let audioReady = undefined
 
 let loadedLevels = 0
 const levels = [lt, l0, l1, l2, l3, l4, l5, l6]
-// const levels = [lt, l6, l1, l2]
+// const levels = [lt, ltest]
 
 let beatsInTransit = []
 let beatsToHittest = []
@@ -211,8 +212,8 @@ const getSong0 = () => (
       ],
       [
         // [7, 0, ,,,,,,,23,,,,,,,,],
-        [3, 0, 21,  , 9,  , 9,  , 9,  ,21,  , 9,  , 9,  , 9,  ,],
-        [3, 0, 21,-3,-3,-3,-3,-3,-3,-3,21,-3,-3,-3,-3,-3,-3, -3],
+        [3, 0, 21,  , 9,  , 9,  , 9,  ,21,  , 9,  , 9,  , 9,  ,21,  , 9,  , 9,  , 9,  ,21,  , 9,  , 9,  , 9,  ,],
+        [3, 0, 21,-3,-3,-3,-3,-3,-3,-3,21,-3,-3,-3,-3,-3,-3,-3,21,-3,-3,-3,-3,-3,-3,-3,21,-3,-3,-3,-3,-3,-3, -3],
         // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
       ],
       // [
@@ -234,7 +235,7 @@ const getSong0 = () => (
       // ],
     ],
     [
-      0,
+      1,
       1,
       1,
       1,
@@ -432,15 +433,15 @@ function BeatSprite(i) {
   this.startTime = aCtx.currentTime
   this.index = i
   this.beat = beats[i]
-  this.y = -(SECTION_HEIGHT)
+  this.y = -(SECTION_HEIGHT * 2)
   this.x = this.beat.x - (SECTION_HEIGHT / 2)
   this.image = this.beat.image
   this.hit = false
   this.beat = undefined
-  this.zone = -1
+  this.zone = -2
   this.phase = 0
 
-  console.log('CREATING SPRITE', this.id, this.y)
+  // console.log('CREATING SPRITE', this.id, this.y)
 
   this.move = function (measureBeat, totalBeats) {
     if (!this.beat) {
@@ -453,15 +454,18 @@ function BeatSprite(i) {
     else {
       this.y += MOVE_SPEED
 
-      console.log('Moving...', this.y)
+      // console.log('Moving...', this.y)
 
       // console.log(this.beat, totalBeats)
 
       if (this.beat < totalBeats) {
+        // console.log('Reconciling...', this.beat, totalBeats)
+
         this.zone += 1
         this.beat = totalBeats
 
-        console.log('Reconciling...', this.beat, totalBeats, this.y, SECTION_HEIGHT * this.zone)
+        // console.log('  --', this.y, SECTION_HEIGHT * this.zone)
+
         this.y = SECTION_HEIGHT * this.zone
         // console.log('Time reconciler', aCtx.currentTime, this.startTime + (TIME_PER_TICK * this.zone))
       }
@@ -671,7 +675,7 @@ function stopLevel() {
 }
 
 function startLevel() {
-  songAudio = getNewSong(0)
+  nextNoteTime = aCtx.currentTime
   // if (currentLevel > 0) {
   //   songAudio.start()
   // }
@@ -691,7 +695,7 @@ function parseLevels() {
     let processingBeat = 1
     let totalMeasures = 0
     // eslint-disable-next-line
-    let totalBeats = 0
+    let totalLevelBeats = 0
     // eslint-disable-next-line
     let measureBeats = 0
 
@@ -726,7 +730,7 @@ function parseLevels() {
           else if (currentResult && (!lookahead || j === lvl.width - 1)) {
             lvl.data[n].push(repeats)
             measureBeats = measureBeats * (repeats + 1)
-            totalBeats += measureBeats
+            totalLevelBeats += measureBeats
 
             repeats = 0
             measureBeats = 0
@@ -738,8 +742,8 @@ function parseLevels() {
     }
 
     lvl.songRepeats = Math.ceil(totalMeasures / 2)
-    lvl.totalBeats = totalBeats
-    lvl.maxScore = totalBeats * result.perfect.points
+    lvl.totalBeats = totalLevelBeats
+    lvl.maxScore = totalLevelBeats * result.perfect.points
   })
   console.log('Levels complete', levels)
 }
@@ -933,6 +937,7 @@ function nextNote() {
   nextNoteTime += 0.25 * secondsPerBeat // Add beat length to last beat time
 
   current16thNote++ // Advance the beat number, wrap to zero
+
   if (current16thNote === 16) {
     current16thNote = 0
   }
@@ -940,10 +945,6 @@ function nextNote() {
 
 function scheduleNote(beatNumber, time) {
   // // Every new measure
-  // if (beatNumber % 16 === 0) {
-  //   snare.trigger(time)
-  // }
-
   if (!audioStarted && audioReady === undefined) {
     audioReady = false
   }
@@ -953,17 +954,27 @@ function scheduleNote(beatNumber, time) {
   else if (!audioStarted && audioReady === true) {
     // If this is the beginning of the audio, just set these together.
     // Otherwise it seems like odd things happen when it tries to catch up
-    nextNoteTime = aCtx.currentTime
+    // nextNoteTime = aCtx.currentTime
     // Trigger the initial play.
+    current16thNote = 0
     songAudio.start(time)
-    // snare.trigger(time)
     audioStarted = true
 
+    console.log('INITIAL BEAT', current16thNote, beatNumber, totalBeats)
+
+    checkForLevelSpawns(totalBeats)
     totalBeats += 1
   }
+  else if (audioStarted) {
 
-  if (audioStarted) {
-    checkForLevelSpawns()
+    checkForLevelSpawns(totalBeats)
+
+    // console.log('BEAT', beatNumber, totalBeats)
+
+    if (beatNumber % 16 === 0) {
+      // snare.trigger(time)
+      console.log('~~ MEASURE ~~', (totalBeats) / 16)
+    }
 
     totalBeats += 1
   }
@@ -1011,15 +1022,18 @@ function movePoppers() {
   }
 }
 
-function checkForLevelSpawns() {
-  console.log('Running spawn checker')
+function checkForLevelSpawns(pBeat) {
+  console.log('Checking for spawn on Beat #', pBeat, sectionBeats)
   for (let i = 0; i < 4; i += 1) {
     if (levels[currentLevel].data[i][sectionBeats]) {
+      console.log('Spawning on Beat #', pBeat, sectionBeats)
       spawnBeat(i)
     }
   }
 
   const repeats = levelRepeats[sectionBeats]
+
+  // console.log('REPEATS', repeats)
 
   if (repeats) {
     levelRepeats[sectionBeats] -= 1
@@ -1030,14 +1044,26 @@ function checkForLevelSpawns() {
   else if (repeats === 0) {
     levelRepeats[sectionBeats] = ''
     beatsSinceRepeat = 0
+    sectionBeats += 1
+
+    console.log('A.Checking for spawns complete', sectionBeats, levelRepeats.length)
+
+    if (sectionBeats === levelRepeats.length) {
+      // console.log('SPAWNS COMPLETE!!')
+      console.log('A.All spawns complete!', sectionBeats, levelRepeats.length)
+      setSpawnsComplete()
+    }
   }
   else {
     beatsSinceRepeat += 1
     sectionBeats += 1
 
+    // TODO: Remove check here. Happens above now.
+    console.log('B.Checking for spawns complete', sectionBeats, levelRepeats.length)
+
     if (sectionBeats === levelRepeats.length) {
       // console.log('SPAWNS COMPLETE!!')
-      console.log('All spawns complete!', sectionBeats, levelRepeats.length)
+      console.log('B.All spawns complete!', sectionBeats, levelRepeats.length)
       setSpawnsComplete()
     }
   }
@@ -1065,19 +1091,6 @@ function renderAnyPoppers() {
     scorePoppers[i].render()
   }
 }
-
-// // Currently replaced by metronome scheduler
-// function doAudioStuff() {
-//   if (!currentTick) {
-//     currentTick = aCtx.currentTime
-//   }
-//   else {
-//     if (currentTick < aCtx.currentTime - TIME_PER_TICK) {
-//       console.log('16th Tick', currentTick, aCtx.currentTime)
-//       currentTick += TIME_PER_TICK
-//     }
-//   }
-// }
 
 /* #endregion */
 
@@ -1397,6 +1410,7 @@ function initScenes() {
       introscene.children[2],
     ],
     onShow() {
+      songAudio = getNewSong(0)
       this.children[0].text = `LEVEL ${currentLevel}`
       this.children[0].color = COLORS.bad
       this.children[2].text = 'START\n[ space ]',
@@ -1550,16 +1564,6 @@ function drawDebugZones(pCtx) {
 
     pCtx.fillStyle = colors[i]
     pCtx.fillRect(x, y, 4, bottom - top)
-    // const el = document.createElement('div')
-
-    // el.style.position = 'absolute'
-    // el.style.width = '4px'
-    // el.style.backgroundColor = colors[i]
-    // el.style.top = convertPx(top)
-    // el.style.left = convertPx(50 + (4 * (i + 1)))
-    // el.style.height = convertPx(bottom - top)
-
-    // board.appendChild(el)
   })
 }
 /* #endregion */
