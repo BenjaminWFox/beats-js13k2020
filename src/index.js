@@ -276,7 +276,7 @@ function spawnScorePopper(res, i) {
     default:
       break
   }
-  gamescene.children[1].text = `SCORE:\n${score}`
+  gamescene._c[1].text = `SCORE:\n${score}`
 }
 
 /* #endregion */
@@ -672,7 +672,7 @@ const gl = () => GameLoop({
 
     switch (scene.id) {
       case scenes.introscene:
-        const tC = introscene.children[1] // eslint-disable-line
+        const tC = introscene._c[1] // eslint-disable-line
 
         switch (tC.text) {
           case introStrings[0]:
@@ -685,7 +685,7 @@ const gl = () => GameLoop({
             }
             break
           case introStrings[3]:
-            fadeOverTimeAfterDelay(cT, time, 3, introscene.children[0])
+            fadeOverTimeAfterDelay(cT, time, 3, introscene._c[0])
             if (!fadeOverTimeAfterDelay(cT, time, 3, tC)
             ) {
               cT = time
@@ -703,50 +703,50 @@ const gl = () => GameLoop({
         }
         break
       case scenes.titlescene:
-        if (titlescene.children[0].opacity < 1) {
-          fadeIn(titlescene.children[0])
+        if (titlescene._c[0].opacity < 1) {
+          fadeIn(titlescene._c[0])
         }
-        if (titlescene.children[1].opacity < 1) {
-          fadeIn(titlescene.children[1])
+        if (titlescene._c[1].opacity < 1) {
+          fadeIn(titlescene._c[1])
         }
-        if (titlescene.children[2].opacity < 1) {
-          fadeIn(titlescene.children[2])
+        if (titlescene._c[2].opacity < 1) {
+          fadeIn(titlescene._c[2])
         }
 
         if (levelStarted) {
-          if (titlescene.children[3].text !== tutorialText && titlescene.children[3].opacity > 0) {
-            fadeOut(titlescene.children[3])
+          if (titlescene._c[3].text !== tutorialText && titlescene._c[3].opacity > 0) {
+            fadeOut(titlescene._c[3])
           }
-          else if (titlescene.children[3].opacity === 0) {
-            titlescene.children[3].text = tutorialText
-            titlescene.children[3].font = gFont(24)
-            titlescene.children[3].opacity = .05
+          else if (titlescene._c[3].opacity === 0) {
+            titlescene._c[3].text = tutorialText
+            titlescene._c[3].font = gFont(24)
+            titlescene._c[3].opacity = .05
           }
-          else if (titlescene.children[3].opacity < 1) {
-            fadeIn(titlescene.children[3])
+          else if (titlescene._c[3].opacity < 1) {
+            fadeIn(titlescene._c[3])
           }
 
           facilitateCurrentLevel()
         }
         break
       case scenes.prelevelscene:
-        if (prelevelscene.children[0].opacity < 1
-          || prelevelscene.children[1].opacity < 1
-          || prelevelscene.children[2].opacity < 1) {
-          fadeIn(prelevelscene.children[0])
-          fadeIn(prelevelscene.children[1])
-          fadeIn(prelevelscene.children[2])
+        if (prelevelscene._c[0].opacity < 1
+          || prelevelscene._c[1].opacity < 1
+          || prelevelscene._c[2].opacity < 1) {
+          fadeIn(prelevelscene._c[0])
+          fadeIn(prelevelscene._c[1])
+          fadeIn(prelevelscene._c[2])
         }
         break
       case scenes.gamescene:
         if (
-          gamescene.children[0].opacity > 0
-          || gamescene.children[2].opacity > 0) {
-          fadeOut(gamescene.children[0])
-          fadeOut(gamescene.children[2])
+          gamescene._c[0].opacity > 0
+          || gamescene._c[2].opacity > 0) {
+          fadeOut(gamescene._c[0])
+          fadeOut(gamescene._c[2])
         }
-        if (gamescene.children[1].opacity < 1) {
-          fadeIn(gamescene.children[1])
+        if (gamescene._c[1].opacity < 1) {
+          fadeIn(gamescene._c[1])
         }
 
         facilitateCurrentLevel()
@@ -758,21 +758,21 @@ const gl = () => GameLoop({
         }
         break
       case scenes.postlevelscene:
-        if (postlevelscene.children[0].opacity < 1
-          || postlevelscene.children[1].opacity < 1
-          || postlevelscene.children[2].opacity < 1) {
-          fadeIn(postlevelscene.children[0])
-          fadeIn(postlevelscene.children[1])
-          fadeIn(postlevelscene.children[2])
+        if (postlevelscene._c[0].opacity < 1
+          || postlevelscene._c[1].opacity < 1
+          || postlevelscene._c[2].opacity < 1) {
+          fadeIn(postlevelscene._c[0])
+          fadeIn(postlevelscene._c[1])
+          fadeIn(postlevelscene._c[2])
         }
         break
       case scenes.gameoverscene:
-        if (gameoverscene.children[0].opacity < 1
-          || gameoverscene.children[1].opacity < 1
-          || gameoverscene.children[2].opacity < 1) {
-          fadeIn(gameoverscene.children[0])
-          fadeIn(gameoverscene.children[1])
-          fadeIn(gameoverscene.children[2])
+        if (gameoverscene._c[0].opacity < 1
+          || gameoverscene._c[1].opacity < 1
+          || gameoverscene._c[2].opacity < 1) {
+          fadeIn(gameoverscene._c[0])
+          fadeIn(gameoverscene._c[1])
+          fadeIn(gameoverscene._c[2])
         }
         break
       default:
@@ -1075,6 +1075,12 @@ function handleKeyboardControl(event) {
         replaySameLevel()
       }
       break
+    case scenes.gameoverscene:
+      if (event.code === 'Space') {
+        bass.trigger(aCtx.currentTime)
+        setScene(titlescene)
+      }
+      break
     default:
       break
   }
@@ -1138,8 +1144,8 @@ function initGame() {
   initBeats()
   initScenes()
 
-  // setScene(introscene)
-  setScene(titlescene)
+  setScene(introscene)
+  // setScene(titlescene)
 }
 
 function getElements() {
@@ -1247,9 +1253,9 @@ function initScenes() {
   titlescene = Scene({
     id: scenes.titlescene,
     children: [
-      introscene.children[1],
-      introscene.children[0],
-      introscene.children[2],
+      introscene._c[1],
+      introscene._c[0],
+      introscene._c[2],
       Text({
         x: CANVAS_MIDX,
         y: 615,
@@ -1272,19 +1278,19 @@ function initScenes() {
     onShow() {
       setCurrentLevel(0)
       initBeats(true)
-      this.children[0].text = introStrings[5]
-      this.children[0].color = COLORS.bad
-      this.children[2].text = 'START\n[ space ]',
-      this.children[0].opacity = 0
-      this.children[2].opacity = 0
-      this.children[1].y = 325
-      this.children[1].opacity = 0
-      this.children[1].color = COLORS.perfect
-      this.children[1].text = 'Prepare For\nManual Re-entry...'
-      this.children[1].font = gFont(30)
+      this._c[0].text = introStrings[5]
+      this._c[0].color = COLORS.bad
+      this._c[2].text = 'START\n[ space ]',
+      this._c[0].opacity = 0
+      this._c[2].opacity = 0
+      this._c[1].y = 325
+      this._c[1].opacity = 0
+      this._c[1].color = COLORS.perfect
+      this._c[1].text = 'Prepare For\nManual Re-entry...'
+      this._c[1].font = gFont(30)
       progress = localStorage.getItem(progressVariable)?.split('')
       if (progress) {
-        this.children[4].text = `JUMP TO LEVEL\n[ ${progress.join(', ')} ]`
+        this._c[4].text = `JUMP TO LEVEL\n[ ${progress.join(', ')} ]`
       }
     },
     onHide() {
@@ -1297,81 +1303,81 @@ function initScenes() {
   gamescene = Scene({
     id: scenes.gamescene,
     children: [
-      introscene.children[1],
-      introscene.children[0],
-      introscene.children[2],
+      introscene._c[1],
+      introscene._c[0],
+      introscene._c[2],
     ],
     onShow() {
       initBeats()
       startLevel()
-      this.children[1].y = 100
-      this.children[1].opacity = 0
-      this.children[1].color = COLORS.perfect
-      this.children[1].text = `SCORE:\n${score}`
-      this.children[1].font = gFont(30)
+      this._c[1].y = 100
+      this._c[1].opacity = 0
+      this._c[1].color = COLORS.perfect
+      this._c[1].text = `SCORE:\n${score}`
+      this._c[1].font = gFont(30)
     },
   })
   prelevelscene = Scene({
     id: scenes.prelevelscene,
     children: [
-      introscene.children[1],
-      introscene.children[0],
-      introscene.children[2],
+      introscene._c[1],
+      introscene._c[0],
+      introscene._c[2],
     ],
     onShow() {
       songAudio = getNewSong()
-      this.children[0].text = `LEVEL ${currentLevel}`
-      this.children[0].color = COLORS.bad
-      this.children[2].text = 'START\n[ space ]',
-      this.children[0].opacity = 0
-      this.children[2].opacity = 0
-      this.children[1].y = 350
-      this.children[1].opacity = 0
-      this.children[1].color = COLORS.perfect
-      this.children[1].text = levels[currentLevel].name
-      this.children[1].font = gFont(30)
+      this._c[0].text = `LEVEL ${currentLevel}`
+      this._c[0].color = COLORS.bad
+      this._c[2].text = 'START\n[ space ]',
+      this._c[0].opacity = 0
+      this._c[2].opacity = 0
+      this._c[1].y = 350
+      this._c[1].opacity = 0
+      this._c[1].color = COLORS.perfect
+      this._c[1].text = levels[currentLevel].name
+      this._c[1].font = gFont(30)
     },
     onhide() { },
   })
   postlevelscene = Scene({
     id: scenes.postlevelscene,
     children: [
-      introscene.children[1],
-      introscene.children[0],
-      introscene.children[2],
+      introscene._c[1],
+      introscene._c[0],
+      introscene._c[2],
     ],
     onShow() {
-      this.children[0].text = `LEVEL ${currentLevel}\nCOMPLETE`
-      this.children[0].color = COLORS.bad
-      this.children[2].text = 'NEXT\n[ space ]\n\nRETRY\n[ r ]',
-      this.children[0].opacity = 0
-      this.children[2].opacity = 0
-      this.children[1].y = 300
-      this.children[1].opacity = 0
-      this.children[1].color = COLORS.perfect
-      this.children[1].text = `Score:\n${score}/\n${levels[currentLevel].maxScore}`
-      this.children[1].font = gFont(30)
+      this._c[0].text = `LEVEL ${currentLevel}\nCOMPLETE`
+      this._c[0].color = COLORS.bad
+      this._c[2].text = 'NEXT\n[ space ]\n\nRETRY\n[ r ]',
+      this._c[0].opacity = 0
+      this._c[2].opacity = 0
+      this._c[1].y = 300
+      this._c[1].opacity = 0
+      this._c[1].color = COLORS.perfect
+      this._c[1].text = `Score:\n${score}/\n${levels[currentLevel].maxScore}`
+      this._c[1].font = gFont(30)
     },
     onhide() { },
   })
   gameoverscene = Scene({
     id: scenes.gameoverscene,
     children: [
-      introscene.children[1],
-      introscene.children[0],
-      introscene.children[2],
+      introscene._c[1],
+      introscene._c[0],
+      introscene._c[2],
     ],
     onShow() {
-      this.children[0].text = 'MANUAL\nREPROGRAM\nCOMPLETE'
-      this.children[0].color = COLORS.bad
-      this.children[2].text = '',
-      this.children[0].opacity = 0
-      this.children[2].opacity = 0
-      this.children[1].y = 350
-      this.children[1].opacity = 0
-      this.children[1].color = COLORS.perfect
-      this.children[1].text = 'Thank you for\nplaying!!'
-      this.children[1].font = gFont(30)
+      this._c[0].text = 'MANUAL\nREPROGRAM\nCOMPLETE'
+      this._c[0].color = COLORS.bad
+      this._c[2].text = 'Replay\n[ space ]',
+      this._c[0].opacity = 0
+      this._c[2].opacity = 0
+      this._c[1].y = 350
+      this._c[1].opacity = 0
+      this._c[1].color = COLORS.perfect
+      this._c[1].text = 'Thank you for\nplaying!!'
+      this._c[1].font = gFont(30)
     },
     onhide() { },
   })

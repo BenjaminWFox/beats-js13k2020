@@ -1771,7 +1771,7 @@ class GameObject extends Updatable {
   } = {}) {
 
     // @ifdef GAMEOBJECT_GROUP
-    this.children = []
+    this._c = []
     // @endif
 
     // by setting defaults to the parameters and passing them into
@@ -1831,7 +1831,7 @@ class GameObject extends Updatable {
     this._uf(dt)
 
     // @ifdef GAMEOBJECT_GROUP
-    this.children.map((child) => child.update && child.update())
+    this._c.map((child) => child.update && child.update())
     // @endif
   }
 
@@ -1916,7 +1916,7 @@ class GameObject extends Updatable {
 
     // @ifdef GAMEOBJECT_GROUP
     // perform all transforms on the parent before rendering the children
-    let children = this.children
+    let children = this._c
 
     if (filterObjects) {
       children = children.filter(filterObjects)
@@ -1968,7 +1968,7 @@ class GameObject extends Updatable {
     this._uw()
 
     // @ifdef GAMEOBJECT_GROUP
-    this.children.map((child) => child._pc())
+    this._c.map((child) => child._pc())
     // @endif
   }
 
@@ -2166,7 +2166,7 @@ class GameObject extends Updatable {
    * parent.render();
    */
   addChild(child, { absolute = false } = {}) {
-    this.children.push(child)
+    this._c.push(child)
     child.parent = this
     child._pc = child._pc || noop
     child._pc()
@@ -2180,10 +2180,10 @@ class GameObject extends Updatable {
    * @param {GameObject} child - Object to remove as a child.
    */
   removeChild(child) {
-    const index = this.children.indexOf(child)
+    const index = this._c.indexOf(child)
 
     if (index !== -1) {
-      this.children.splice(index, 1)
+      this._c.splice(index, 1)
       child.parent = null
       child._pc()
     }
@@ -3978,7 +3978,7 @@ class Grid extends factory$2.class {
    * @function destroy
    */
   destroy() {
-    this.children.map((child) => child.destroy && child.destroy())
+    this._c.map((child) => child.destroy && child.destroy())
   }
 
   /**
@@ -3999,7 +3999,7 @@ class Grid extends factory$2.class {
     const grid = this._g = []
     const colWidths = this._cw = []
     const rowHeights = this._rh = []
-    const children = this.children
+    const children = this._c
 
     // nc = numCols
     const numCols = this._nc = this.flow === 'column'
@@ -5151,7 +5151,7 @@ class Scene extends factory$2.class {
     this.hidden = this._dn.hidden = false
 
     // find first focusable child
-    const focusableChild = this.children.find((child) => child.focus)
+    const focusableChild = this._c.find((child) => child.focus)
 
     if (focusableChild) {
       focusableChild.focus()
@@ -5199,7 +5199,7 @@ class Scene extends factory$2.class {
    */
   destroy() {
     this._dn.remove()
-    this.children.map((child) => child.destroy && child.destroy())
+    this._c.map((child) => child.destroy && child.destroy())
   }
 
   update(dt) {
