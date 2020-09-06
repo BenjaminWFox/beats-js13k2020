@@ -77,8 +77,8 @@ let score = 0
 let audioReady = undefined
 
 let loadedLevels = 0
-const levels = [lt, l6]
-const ln = ['tutorial', 'Get it Pumping', 'Hello Hat', 'Highs and Lows', 'FJ Cruiser', '']
+const levels = [lt, l1, l2, l3, l4, l5]
+const ln = ['tutorial', 'Get it Pumping', 'Hello Hat', 'Highs and Lows', 'FJ Cruiser', 'Ensnared']
 // const levels = [lt, ltest]
 
 let beatsInTransit = []
@@ -695,10 +695,11 @@ function parseLevels() {
           else if (currentResult && (!lookahead || j === lvl.width - 1)) {
             let ttB = 0
 
+            // BigO fail. At least N is small.
             for (let m = 0; m < 4; m += 1) {
-              console.log('Checking row', m)
+              // console.log('Checking row', m)
               for (let p = lastRepeatStartIndex; p < j; p += 1) {
-                console.log('foundIndexLoc', m, p, lvl.data[m][p])
+                // console.log('foundIndexLoc', m, p, lvl.data[m][p])
                 if (lvl.data[m][p]) {
                   ttB += 1
                 }
@@ -710,7 +711,7 @@ function parseLevels() {
             lvl.data[n].push(repeats)
             measureBeats = measureBeats * (repeats + 1)
             totalLevelBeats += ttB
-            console.log('Incrementing totalLevelBeats w/ measureBeats', totalLevelBeats)
+            // console.log('Incrementing totalLevelBeats w/ measureBeats', totalLevelBeats)
 
             repeats = 0
             measureBeats = 0
