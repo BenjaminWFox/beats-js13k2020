@@ -63,6 +63,7 @@ let lCtx
 let scene
 let gamescene
 let titlescene
+const tutorialText = 'When the beats pass through\nthe zone at the bottom, press\nthe key shown!\n\nTiming is everything...\nIn the game they don\'t stop!'
 let introscene
 let prelevelscene
 let postlevelscene
@@ -76,7 +77,8 @@ let score = 0
 let audioReady = undefined
 
 let loadedLevels = 0
-const levels = [lt, l0, l1, l2, l3, l4, l5, l6]
+const levels = [lt, l4]
+const ln = ['tutorial', 'Get it Pumping', 'Hello Hat', 'Highs and Lows', 'FJ Cruiser', '']
 // const levels = [lt, ltest]
 
 let beatsInTransit = []
@@ -652,6 +654,7 @@ function parseLevels() {
     lvl.height = lvl.image.height
     lCtx.drawImage(lvl.image, 0, 0)
 
+    let lastRepeatStartIndex = 0
     let processingBeat = 1
     let totalMeasures = 0
     // eslint-disable-next-line
@@ -678,19 +681,36 @@ function parseLevels() {
         else {
           const lookahead = lCtx.getImageData(j + 1, n, 1, 1).data[0] === 0 ? 1 : ''
 
-          // If there is no result,
+          // If there is no result (no repeat marker here)
           if (!currentResult) {
             lvl.data[n].push(currentResult)
           }
+          // If there is a lookahead (more repeats to process):
           else if (lookahead && j !== lvl.width - 1) {
             repeats += 1
             totalMeasures += 1
             lvl.data[n].push('')
           }
+          // If there is no lookahead (no more repeats to process):
           else if (currentResult && (!lookahead || j === lvl.width - 1)) {
+            let ttB = 0
+
+            for (let m = 0; m < 4; m += 1) {
+              console.log('Checking row', m)
+              for (let p = lastRepeatStartIndex; p < j; p += 1) {
+                console.log('foundIndexLoc', m, p, lvl.data[m][p])
+                if (lvl.data[m][p]) {
+                  ttB += 1
+                }
+              }
+            }
+            ttB = ttB * (repeats + 1)
+            lastRepeatStartIndex = j
+
             lvl.data[n].push(repeats)
             measureBeats = measureBeats * (repeats + 1)
-            totalLevelBeats += measureBeats
+            totalLevelBeats += ttB
+            console.log('Incrementing totalLevelBeats w/ measureBeats', totalLevelBeats)
 
             repeats = 0
             measureBeats = 0
@@ -714,6 +734,7 @@ function makeLevel(i) {
     image,
     id: i,
     length: undefined,
+    name: ln[i],
   }
 
   image.src = levels[i]
@@ -779,8 +800,16 @@ const gl = () => GameLoop({
         }
 
         if (levelStarted) {
-          if (titlescene.children[3].opacity > 0) {
+          if (titlescene.children[3].text !== tutorialText && titlescene.children[3].opacity > 0) {
             fadeOut(titlescene.children[3])
+          }
+          else if (titlescene.children[3].opacity === 0) {
+            titlescene.children[3].text = tutorialText
+            titlescene.children[3].font = gFont(24)
+            titlescene.children[3].opacity = .05
+          }
+          else if (titlescene.children[3].opacity < 1) {
+            fadeIn(titlescene.children[3])
           }
 
           facilitateCurrentLevel()
@@ -983,10 +1012,10 @@ function movePoppers() {
 }
 
 function checkForLevelSpawns(pBeat) {
-  console.log('Checking for spawn on Beat #', pBeat, sectionBeats)
+  // console.log('Checking for spawn on Beat #', pBeat, sectionBeats)
   for (let i = 0; i < 4; i += 1) {
     if (levels[currentLevel].data[i][sectionBeats]) {
-      console.log('Spawning on Beat #', pBeat, sectionBeats)
+      // console.log('Spawning on Beat #', pBeat, sectionBeats)
       spawnBeat(i)
     }
   }
@@ -1006,11 +1035,11 @@ function checkForLevelSpawns(pBeat) {
     beatsSinceRepeat = 0
     sectionBeats += 1
 
-    console.log('A.Checking for spawns complete', sectionBeats, levelRepeats.length)
+    // console.log('A.Checking for spawns complete', sectionBeats, levelRepeats.length)
 
     if (sectionBeats === levelRepeats.length) {
       // console.log('SPAWNS COMPLETE!!')
-      console.log('A.All spawns complete!', sectionBeats, levelRepeats.length)
+      // console.log('A.All spawns complete!', sectionBeats, levelRepeats.length)
       setSpawnsComplete()
     }
   }
@@ -1019,11 +1048,11 @@ function checkForLevelSpawns(pBeat) {
     sectionBeats += 1
 
     // TODO: Remove check here. Happens above now.
-    console.log('B.Checking for spawns complete', sectionBeats, levelRepeats.length)
+    // console.log('B.Checking for spawns complete', sectionBeats, levelRepeats.length)
 
     if (sectionBeats === levelRepeats.length) {
       // console.log('SPAWNS COMPLETE!!')
-      console.log('B.All spawns complete!', sectionBeats, levelRepeats.length)
+      // console.log('B.All spawns complete!', sectionBeats, levelRepeats.length)
       setSpawnsComplete()
     }
   }
@@ -1057,8 +1086,8 @@ function renderAnyPoppers() {
 /* #region ******** DRAWING ******** */
 
 function drawBackground() {
-  drawDebugZones(context)
-  drawRows(context)
+  // drawDebugZones(context)
+  // drawRows(context)
 
   // DRAW ZONE:
   context.fillStyle = '#ffffff'
@@ -1370,7 +1399,7 @@ function initScenes() {
       introscene.children[2],
     ],
     onShow() {
-      songAudio = getNewSong(1)
+      songAudio = getNewSong(3)
       this.children[0].text = `LEVEL ${currentLevel}`
       this.children[0].color = COLORS.bad
       this.children[2].text = 'START\n[ space ]',
@@ -1379,7 +1408,7 @@ function initScenes() {
       this.children[1].y = 350
       this.children[1].opacity = 0
       this.children[1].color = COLORS.perfect
-      this.children[1].text = 'Are you ready?'
+      this.children[1].text = levels[currentLevel].name
       this.children[1].font = gFont(30)
     },
     onhide() {},
