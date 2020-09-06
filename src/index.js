@@ -110,30 +110,30 @@ const scenes = {
 }
 
 const result = {
-  perfect: {
-    text: 'PERFECT',
-    color: COLORS.perfect,
-    points: 1000,
+  p: {
+    t: 'PERFECT',
+    c: COLORS.perfect,
+    p: 1000,
   },
-  good: {
-    text: 'GOOD',
-    color: COLORS.good,
-    points: 750,
+  g: {
+    t: 'GOOD',
+    c: COLORS.good,
+    p: 750,
   },
-  ok: {
-    text: 'OK',
-    color: COLORS.ok,
-    points: 500,
+  o: {
+    t: 'OK',
+    c: COLORS.ok,
+    p: 500,
   },
-  meh: {
-    text: 'MEH',
-    color: COLORS.meh,
-    points: 250,
+  m: {
+    t: 'MEH',
+    c: COLORS.meh,
+    p: 250,
   },
-  bad: {
-    text: 'BAD',
-    color: COLORS.bad,
-    points: -500,
+  b: {
+    t: 'BAD',
+    c: COLORS.bad,
+    p: -500,
   },
 }
 
@@ -234,9 +234,9 @@ function PopperSprite(res, x, i) {
   this.sprite = Text({
     x,
     y: ZONE_TOP - (SECTION_HEIGHT / 2),
-    color: res.color,
+    color: res.c,
     anchor: { x: .5, y: .5 },
-    text: res.text,
+    text: res.t,
     textAlign: 'center',
     font: gFont(25),
     opacity: 1,
@@ -257,21 +257,21 @@ function PopperSprite(res, x, i) {
 
 function spawnScorePopper(res, i) {
   scorePoppers.unshift(new PopperSprite(res, beats[i].x, i))
-  switch (res.text) {
-    case result.perfect.text:
-      score += result.perfect.points
+  switch (res.t) {
+    case result.p.t:
+      score += result.p.p
       break
-    case result.good.text:
-      score += result.good.points
+    case result.g.t:
+      score += result.g.p
       break
-    case result.ok.text:
-      score += result.ok.points
+    case result.o.t:
+      score += result.o.p
       break
-    case result.meh.text:
-      score += result.meh.points
+    case result.m.t:
+      score += result.m.p
       break
-    case result.bad.text:
-      score += result.bad.points
+    case result.b.t:
+      score += result.b.p
       break
     default:
       break
@@ -342,7 +342,7 @@ function BeatSprite(i) {
 
     if (this.y > BOARD_HEIGHT) {
       if (!this.hit) {
-        spawnScorePopper(result.bad, this.index)
+        spawnScorePopper(result.b, this.index)
         console.log('Hey, you missed this one...')
       }
       beatsToHittest.pop()
@@ -397,8 +397,8 @@ function getBeatImage(fillColor, strokeColor, key, showDebug) {
 function checkCollision(beatIndex) {
   if (!beatsToHittest.length) {
     console.log('NO BEAT!')
-    spawnScorePopper(result.bad, beatIndex)
-    // context.drawImage(result.bad, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
+    spawnScorePopper(result.b, beatIndex)
+    // context.drawImage(result.b, lane.drawX, BOARD_HEIGHT - (SECTION_HEIGHT * 2))
   }
   else {
     let didHit = false
@@ -418,7 +418,7 @@ function checkCollision(beatIndex) {
       if (!sprite.hit) {
         if (sY >= ZONE_CHECK_BOTTOM) {
           // console.log('SPRITE MISSED!')
-          spawnScorePopper(result.bad, beatIndex)
+          spawnScorePopper(result.b, beatIndex)
 
           didHit = setHit(sprite)
 
@@ -431,25 +431,25 @@ function checkCollision(beatIndex) {
         }
         if (sY < ZONE_CHECK_PERFECT_BOTTOM && sprite.y >= ZONE_CHECK_PERFECT_TOP) {
           // console.log('... PERFECT ...')
-          spawnScorePopper(result.perfect, beatIndex)
+          spawnScorePopper(result.p, beatIndex)
           didHit = setHit(sprite)
           continue
         }
         if (sY < ZONE_CHECK_GOOD_BOTTOM && sprite.y >= ZONE_CHECK_GOOD_TOP) {
           // console.log('... GOOD ...')
-          spawnScorePopper(result.good, beatIndex)
+          spawnScorePopper(result.g, beatIndex)
           didHit = setHit(sprite)
           continue
         }
         if (sY < ZONE_CHECK_OK_BOTTOM && sprite.y >= ZONE_CHECK_OK_TOP) {
           // console.log('... OK ...')
-          spawnScorePopper(result.ok, beatIndex)
+          spawnScorePopper(result.o, beatIndex)
           didHit = setHit(sprite)
           continue
         }
         if (sY < ZONE_CHECK_BOTTOM && sprite.y >= ZONE_CHECK_TOP) {
           // console.log('... MEH ...')
-          spawnScorePopper(result.meh, beatIndex)
+          spawnScorePopper(result.m, beatIndex)
           didHit = setHit(sprite)
           continue
         }
@@ -459,7 +459,7 @@ function checkCollision(beatIndex) {
     if (!didHit) {
       // console.log('Did not hit anything!')
       if (scene.id === scenes.gamescene) {
-        spawnScorePopper(result.bad, beatIndex)
+        spawnScorePopper(result.b, beatIndex)
       }
     }
   }
@@ -637,7 +637,7 @@ function parseLevels() {
     lvl.totalBeats = totalLevelBeats
     // lvl.totalLength =
     lvl.songRepeats = Math.ceil(totalMeasures)
-    lvl.maxScore = totalLevelBeats * result.perfect.points
+    lvl.maxScore = totalLevelBeats * result.p.p
   })
   console.log('Levels complete', levels)
 }
