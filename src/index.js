@@ -6,14 +6,12 @@ import Kick from './sound/kick'
 import Snare from './sound/snare'
 import HiHat from './sound/hihat'
 import lt from './assets/images/levels/lt.png'
-import l0 from './assets/images/levels/l0.png'
 import l1 from './assets/images/levels/l1.png'
 import l2 from './assets/images/levels/l2.png'
 import l3 from './assets/images/levels/l3.png'
 import l4 from './assets/images/levels/l4.png'
 import l5 from './assets/images/levels/l5.png'
-import l6 from './assets/images/levels/l6.png'
-import ltest from './assets/images/levels/ltest.png'
+// import ltest from './assets/images/levels/ltest.png'
 /* #endregion */
 
 /* #region ******** CONSTANTS & GLOBAL VARS ******** */
@@ -25,7 +23,7 @@ const BPM = 120
 const TIME_PER_TICK = 60.0 / (TICK_EVERY / 4) / BPM
 const HORIZONTAL_SECTIONS = 16
 let VIEW_HEIGHT
-let VIEW_WIDTH
+// let VIEW_WIDTH
 let SECTION_HEIGHT
 let BOARD_HEIGHT
 let CANVAS_WIDTH
@@ -58,7 +56,7 @@ const COLORS = {
 let canvas
 let context
 let bgCanvas
-let bgCtx
+// let bgCtx
 let lCtx
 let scene
 let gamescene
@@ -83,13 +81,11 @@ const ln = ['tutorial', 'Get it Pumping', 'Hello Hat', 'Highs and Lows', 'FJ Cru
 
 let beatsInTransit = []
 let beatsToHittest = []
-let beatsToIgnore = []
 let scorePoppers = []
 
 const clearAllBeats = () => {
   beatsInTransit = []
   beatsToHittest = []
-  beatsToIgnore = []
 }
 
 const introStrings = [
@@ -150,7 +146,6 @@ function setScene(s) {
 /* #region ******** ALIASES & CONVENIENCE ******** */
 
 const $ = document.querySelector.bind(document)
-const convertPx = (n) => `${n}px`
 
 function uuidv4() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -191,147 +186,42 @@ const zzfxX = aCtx
 //! ZzFXM (v2.0.2) | (C) Keith Clark | MIT | https://github.com/keithclark/ZzFXM
 const zzfxM = (f, n, o, t = 125) => { let z, e, l, r, g, h, x, a, u, c, d, i, m, p, G, M, R = [], b = [], j = [], k = 0, q = 1, s = {}, v = zzfxR / t * 60 >> 2; for (; q; k++)R = [q = a = d = m = 0], o.map((t, d) => { for (x = n[t][k] || [0, 0, 0], q |= !!n[t][k], G = m + (n[t][0].length - 2 - !a) * v, e = 2, r = m; e < x.length + (d == o.length - 1); a = ++e) { for (g = x[e], u = c != (x[0] || 0) | g | 0, l = 0; l < v && a; l++ > v - 99 && u ? i += (i < 1) / 99 : 0)h = (1 - i) * R[p++] / 2 || 0, b[r] = (b[r] || 0) + h * M - h, j[r] = (j[r++] || 0) + h * M + h; g && (i = g % 1, M = x[1] || 0, (g |= 0) && (R = s[[c = x[p = 0] || 0, g]] = s[[c, g]] || (z = [...f[c]], z[2] *= 2 ** ((g - 12) / 12), zzfxG(...z)))) } m = G }); return [b, j] }
 
-const getSong0 = () => (
-  [
-    [
-      [1, 0, 50],
-      [1, 0, 100],
-      [1, 0, 150],
-      [1, 0, 200],
-      [1, 0, 250],
-      [1, 0, 300],
-      [1, 0, 350],
-      [1, 0, 400],
-    ],
-    [
-      // Keep 3 beats before first notes to align this with the metronome...
-      // Seems to give the best results.
-      // // METRONOME
-      // [
-      //   // [7, 0, ,,,,,,,23,,,,,,,,],
-      //   [3, 0, 21,  , 9,  , 9,  , 9,  ,21,  , 9,  , 9,  , 9,  ,21,  , 9,  , 9,  , 9,  ,21,  , 9,  , 9,  , 9,  ,],
-      //   [3, 0, 21,-3,-3,-3,-3,-3,-3,-3,21,-3,-3,-3,-3,-3,-3,-3,21,-3,-3,-3,-3,-3,-3,-3,21,-3,-3,-3,-3,-3,-3, -3],
-      //   // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-      // ],
-      [
-        [7, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-        [3, 0, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
-        // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-      ],
-      [
-        [7, 0, 19, 19, 23, 19, 26, 19, 26, 24, 17, 17, 21, 17, 24, 17, 24, 23],
-        [7, 0, 0, 7, 7, 11, 7, 14, 7, 14, 12, 5, 5, 9, 5, 12, 5, 12, 11],
-        // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-        // [5, 0, 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18, 14],
-        // [4, 0, , 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18],
-      ],
-      [
-        [7, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-        [3, 0, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
-        // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-      ],
-    ],
-    [
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-    ],
-    60,
-  ])
-// hey ya
-const getSong1 = () => (
-  // [[[,0,400]],[[[,-1,25,25,23,21,20,,20,20,21,20,20,18,16,18,20,20,21,20,20,18,16,18,20,,21,21,20,20,20,20,,],[,,20,20,20,18,20,18,18,18,18,18,18,20,18,20,18,13,20,20,20,18,20,18,18,18,18,18,18,20,20,18,13],[,1,32,32,30,28,27,,27,27,28,27,27,25,23,25,27,27,28,27,27,25,23,25,27,,28,28,27,27,27,27,,]]],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],60,{"title":"HeyYa","instruments":["Instrument 0"],"patterns":["Pattern 0"]}]
-  [[[,0,400]],[[[,,20,20,20,18,20,18,18,18,18,18,18,20,18,20,18,13,20,20,20,18,20,18,18,18,18,18,18,20,20,18,13,13],[,1,32,32,30,28,27,,27,27,28,27,27,25,23,25,27,27,28,27,27,25,23,25,27,,28,28,27,27,27,27,27,,]]],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],60,{"title":"HeyYa-2","instruments":["Instrument 0"],"patterns":["Pattern 0"]}]
-)
-// const getSong1 = () => (
+// // // METRONOME
+// const getSong0 = () => (
 //   [
 //     [
-//       [1, 0, 50],
-//       [1, 0, 100],
-//       [1, 0, 150],
 //       [1, 0, 200],
-//       [1, 0, 250],
-//       [1, 0, 300],
-//       [1, 0, 350],
-//       [1, 0, 400],
 //     ],
 //     [
 //       [
-//         [7, 0, 16, 16, 14, 12, 11, , 11, 11, 12, 11, 11, 9, 7, 9, 11, 11],
-//         [7, 0, , 4, 2, 0, -1, , -1, -1, 0, -1, -1, -3, -5, -3, -1, -1],
-//         // [3, 0, ,,, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
-//         // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-//       ],
-//       [
-//         [7, 0, 12, 11, 11, 9, 7, 9, 11, , 12, 12, 11, 11, 11, 11, ,],
-//         [7, 0, , 0, -1, -1, -3, -5, -3, -1, , 0, 0, -1, -1, -1, -1,],
-//         // [7, 0, 0, 7, 7, 11, 7, 14, 7, 14, 12, 5, 5, 9, 5, 12, 5, 12, 11],
-//         // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
-//         // [5, 0, 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18, 14],
-//         // [4, 0, , 11, 11, 14, 11, 16, 11, 18, 16, 14, 14, 18, 14, 21, 14, 18],
-//       ],
-//       [
-//         [7, 0, 16, 16, 14, 12, 11, , 11, 11, 12, 11, , 9, 7, 9, 11, 11],
-//         [7, 0, , 4, 2, 0, -1, , -1, -1, 0, -1, -1, -2, -4, -2, -1, -1],
-//         // [3, 0, 0, 9, 33, 12, 33, 14, 9, 40, 14, 36, 12, 40, 12, 43, 12, 36],
+//         // [7, 0, ,,,,,,,23,,,,,,,,],
+//         [0, 0, 21, , 9, , 9, , 9, , 21, , 9, , 9, , 9, , 21, , 9, , 9, , 9, , 21, , 9, , 9, , 9, ,],
+//         [0, 0, 21, -3, -3, -3, -3, -3, -3, -3, 21, -3, -3, -3, -3, -3, -3, -3, 21, -3, -3, -3, -3, -3, -3, -3, 21, -3, -3, -3, -3, -3, -3, -3],
 //         // [5, 0, 21, 21, 24, 21, 26, 21, 28, 26, 24, 24, 28, 24, 31, 24, 28, 24],
 //       ],
 //     ],
 //     [
-//       0,
-//       1,
-//       2,
-//       1,
-//       2,
-//       1
+//       0
 //     ],
 //     60,
-//   ]
-// )
-// we will rock you
-const getSong2 = () => (
-  [[[,0,200]],[[[,,13,,,,12,,,,10,,,,8,,,,10,,10,,13,,,,12,,,,10,,,,8,,,,10,,10,,],[,,25,27,27,27,27,27,27,27,27,27,27,27,27,27,27,25,27,32,30,30,25,27,27,27,27,25,27,27,27,25,25,25,22,22,20,20,20,18,15,15]]],[0],60,{"title":"New Song","instruments":["Instrument 0"],"patterns":["Pattern 0"]}]
-)
-const getSong3 = () => (
-  [[[,0,200]],[[[,,13,13,16,13,18,13,20,18,16,16,20,16,23,16,20,16,11,11,15,11,18,11,18,16,9,9,13,9,16,9,16,15]]],[0,0,0,0,0,0,0,0,0,0],60,{"title":"New Song","instruments":["Instrument 0"],"patterns":["Pattern 0"]}]
-)
-const SONGS = [
-  getSong0(),
-  getSong1(),
-  getSong2(),
-  getSong3(),
-]
+//   ])
 let songAudio
 let audioStarted
-
-function getNewSong(i) {
-  let s = SONGS[i]
-  let sD = zzfxM(...s)
-  return zzfxP(...sD)
+const SONG = [
+  [[, 0, 200]],
+  [[[, , 13, 13, 16, 13, 18, 13, 20, 18, 16, 16, 20, 16, 23, 16, 20, 16, 11, 11, 15, 11, 18, 11, 18, 16, 9, 9, 13, 9, 16, 9, 16, 15]]],
+  [0],
+  60,
+  { "title": "New Song", "instruments": ["Instrument 0"], "patterns": ["Pattern 0"] }
+]
+function getNewSong() {
+  // Calculate how many times to loop the song. Add 1 because the song starts before the beats are in the 'zone'
+  const n = Math.ceil(levels[currentLevel].songRepeats / 2) + 1
+  SONG[2] = new Array(n).fill(0, 0, n)
+  console.log('SONG', SONG[2])
+  return zzfxP(...zzfxM(...SONG))
 }
-songAudio = getNewSong(1)
 
-// song1 = getSong0()
-// songData1 = zzfxM(...song1)
-// songAudio1 = zzfxP(...songData1)
-// song2 = getSong1()
-// songData2 = zzfxM(...song2)
-// songAudio2 = zzfxP(...songData2)
-/**/
-// songAudio = zzfxP(aCtx.currentTime + 5, ...songData)
-// songAudio.start()
 /* eslint-enable */
 /* #endregion */
 
@@ -632,10 +522,6 @@ function completeLevel() {
   setScene(postlevelscene)
 }
 
-function stopLevel() {
-  setCurrentLevel(currentLevel + 1)
-}
-
 function startLevel() {
   nextNoteTime = aCtx.currentTime
   // if (currentLevel > 0) {
@@ -650,15 +536,17 @@ function parseLevels() {
   levels.forEach((lvl, i) => {
     lvl.data = {}
     lvl.length = lvl.image.width
+    lvl.totalLength = 0
     lvl.width = lvl.image.width
     lvl.height = lvl.image.height
     lCtx.drawImage(lvl.image, 0, 0)
 
     let lastRepeatStartIndex = 0
-    let processingBeat = 1
+    // let processingBeat = 1
     let totalMeasures = 0
     // eslint-disable-next-line
     let totalLevelBeats = 0
+    // let totalLevelLength = 0
     // eslint-disable-next-line
     let measureBeats = 0
 
@@ -711,19 +599,22 @@ function parseLevels() {
             lvl.data[n].push(repeats)
             measureBeats = measureBeats * (repeats + 1)
             totalLevelBeats += ttB
+            totalMeasures += 1
+            // totalLevelLength += 0
             // console.log('Incrementing totalLevelBeats w/ measureBeats', totalLevelBeats)
 
             repeats = 0
             measureBeats = 0
           }
 
-          processingBeat += 1
+          // processingBeat += 1
         }
       }
     }
 
-    lvl.songRepeats = Math.ceil(totalMeasures / 2)
     lvl.totalBeats = totalLevelBeats
+    // lvl.totalLength =
+    lvl.songRepeats = Math.ceil(totalMeasures)
     lvl.maxScore = totalLevelBeats * result.perfect.points
   })
   console.log('Levels complete', levels)
@@ -750,7 +641,7 @@ function makeLevel(i) {
 
 /* #region ******** GAME LOOP ******** */
 
-let currentTick
+// let currentTick
 let time = 0
 let cT = 0
 const gl = () => GameLoop({
@@ -828,7 +719,7 @@ const gl = () => GameLoop({
       case scenes.gamescene:
         if (
           gamescene.children[0].opacity > 0
-            || gamescene.children[2].opacity > 0) {
+          || gamescene.children[2].opacity > 0) {
           fadeOut(gamescene.children[0])
           fadeOut(gamescene.children[2])
         }
@@ -907,7 +798,7 @@ let current16thNote
 let totalBeats
 let sectionBeats
 let beatsSinceRepeat
-let sectionRepeats
+// let sectionRepeats
 const tempo = BPM
 // const lookahead = 25.0
 
@@ -916,7 +807,7 @@ function clearMusicTrackers() {
   totalBeats = 0
   sectionBeats = 0
   beatsSinceRepeat = 0
-  sectionRepeats = 0
+  // sectionRepeats = 0
 }
 
 function nextNote() {
@@ -1234,8 +1125,8 @@ function initGame() {
 }
 
 function getElements() {
-  bgCanvas = $('#bgBoard')
-  bgCtx = bgCanvas.getContext('2d')
+  // bgCanvas = $('#bgBoard')
+  // bgCtx = bgCanvas.getContext('2d')
   lCtx = $('#canvas').getContext('2d')
 }
 
@@ -1274,10 +1165,7 @@ function initConstants() {
 function initUi() {
   $('#body').style.height = `${VIEW_HEIGHT}px`
   canvas.height = VIEW_HEIGHT
-  bgCanvas.height = VIEW_HEIGHT
   canvas.width = SECTION_HEIGHT * 5
-  bgCanvas.width = canvas.width
-  $('#board-wrapper').style.width = `${canvas.width}px`
 }
 
 function initBeats(showKeys = false) {
@@ -1400,7 +1288,7 @@ function initScenes() {
       introscene.children[2],
     ],
     onShow() {
-      songAudio = getNewSong(3)
+      songAudio = getNewSong()
       this.children[0].text = `LEVEL ${currentLevel}`
       this.children[0].color = COLORS.bad
       this.children[2].text = 'START\n[ space ]',
@@ -1412,7 +1300,7 @@ function initScenes() {
       this.children[1].text = levels[currentLevel].name
       this.children[1].font = gFont(30)
     },
-    onhide() {},
+    onhide() { },
   })
   postlevelscene = Scene({
     id: scenes.postlevelscene,
@@ -1433,7 +1321,7 @@ function initScenes() {
       this.children[1].text = `Score:\n${score}/\n${levels[currentLevel].maxScore}`
       this.children[1].font = gFont(30)
     },
-    onhide() {},
+    onhide() { },
   })
   gameoverscene = Scene({
     id: scenes.gameoverscene,
@@ -1454,7 +1342,7 @@ function initScenes() {
       this.children[1].text = 'Thank you for\nplaying!!'
       this.children[1].font = gFont(30)
     },
-    onhide() {},
+    onhide() { },
   })
 }
 
