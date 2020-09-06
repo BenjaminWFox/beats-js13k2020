@@ -61,23 +61,23 @@ function emit(event, ...args) {
 }
 
 /**
- * Functions for initializing the Kontra library and getting the canvas and context
+ * Functions for initializing the Kontra library and getting the canvas and cX
  * objects.
  *
  * ```js
  * import { getCanvas, getContext, init } from 'kontra';
  *
- * let { canvas, context } = init();
+ * let { canvas, cX } = init();
  *
- * // or can get canvas and context through functions
+ * // or can get canvas and cX through functions
  * canvas = getCanvas();
- * context = getContext();
+ * cX = getContext();
  * ```
  * @sectionName Core
  */
 
 let canvasEl; let
-  context
+  cX
 
 /**
  * Return the canvas element.
@@ -90,13 +90,13 @@ function getCanvas() {
 }
 
 /**
- * Return the context object.
+ * Return the cX object.
  * @function getContext
  *
- * @returns {CanvasRenderingContext2D} The context object the game draws to.
+ * @returns {CanvasRenderingcX2D} The cX object the game draws to.
  */
 function getContext() {
-  return context
+  return cX
 }
 
 /**
@@ -105,13 +105,13 @@ function getContext() {
  * ```js
  * import { init } from 'kontra';
  *
- * let { canvas, context } = init('game');
+ * let { canvas, cX } = init('game');
  * ```
  * @function init
  *
  * @param {String|HTMLCanvasElement} [canvas] - The canvas for Kontra to use. Can either be the ID of the canvas element or the canvas element itself. Defaults to using the first canvas element on the page.
  *
- * @returns {{canvas: HTMLCanvasElement, context: CanvasRenderingContext2D}} An object with properties `canvas` and `context`. `canvas` it the canvas element for the game and `context` is the context object the game draws to.
+ * @returns {{canvas: HTMLCanvasElement, cX: CanvasRenderingcX2D}} An object with properties `canvas` and `cX`. `canvas` it the canvas element for the game and `cX` is the cX object the game draws to.
  */
 function init(canvas) {
 
@@ -127,12 +127,12 @@ function init(canvas) {
   }
   // @endif
 
-  context = canvasEl.getContext('2d')
-  context.imageSmoothingEnabled = false
+  cX = canvasEl.getContext('2d')
+  cX.imageSmoothingEnabled = false
 
   emit('init')
 
-  return { canvas: canvasEl, context }
+  return { canvas: canvasEl, cX }
 }
 
 /**
@@ -283,15 +283,15 @@ class Animation {
    * @param {Number} properties.y - Y position to draw the animation.
    * @param {Number} [properties.width] - width of the sprite. Defaults to [Animation.width](api/animation#width).
    * @param {Number} [properties.height] - height of the sprite. Defaults to [Animation.height](api/animation#height).
-   * @param {CanvasRenderingContext2D} [properties.context] - The context the animation should draw to. Defaults to [core.getContext()](api/core#getContext).
+   * @param {CanvasRenderingcX2D} [properties.cX] - The cX the animation should draw to. Defaults to [core.getContext()](api/core#getContext).
    */
-  render({ x, y, width = this.width, height = this.height, context = getContext() }) {
+  render({ x, y, width = this.width, height = this.height, cX = getContext() }) {
 
     // get the row and col of the frame
     const row = this.frames[this._f] / this.spriteSheet._f | 0
     const col = this.frames[this._f] % this.spriteSheet._f | 0
 
-    context.drawImage(
+    cX.drawImage(
       this.spriteSheet.image,
       col * this.width + (col * 2 + 1) * this.margin,
       row * this.height + (row * 2 + 1) * this.margin,
@@ -1409,11 +1409,11 @@ class Updatable {
    *
    *     // change the velocity at the edges of the canvas
    *     if (this.x < 0 ||
-   *         this.x + this.width > this.context.canvas.width) {
+   *         this.x + this.width > this.cX.canvas.width) {
    *       this.dx = -this.dx;
    *     }
    *     if (this.y < 0 ||
-   *         this.y + this.height > this.context.canvas.height) {
+   *         this.y + this.height > this.cX.canvas.height) {
    *       this.dy = -this.dy;
    *     }
    *   }
@@ -1582,7 +1582,7 @@ function addToDom(node, canvas) {
  * @param {Number} [properties.width] - Width of the game object.
  * @param {Number} [properties.height] - Height of the game object.
  *
- * @param {CanvasRenderingContext2D} [properties.context] - The context the game object should draw to. Defaults to [core.getContext()](api/core#getContext).
+ * @param {CanvasRenderingcX2D} [properties.cX] - The cX the game object should draw to. Defaults to [core.getContext()](api/core#getContext).
  *
  * @param {Number} [properties.dx] - X coordinate of the velocity vector.
  * @param {Number} [properties.dy] - Y coordinate of the velocity vector.
@@ -1637,11 +1637,11 @@ class GameObject extends Updatable {
     height = 0,
 
     /**
-     * The context the game object will draw to.
+     * The cX the game object will draw to.
      * @memberof GameObject
-     * @property {CanvasRenderingContext2D} context
+     * @property {CanvasRenderingcX2D} cX
      */
-    context = getContext(),
+    cX = getContext(),
 
     render = this.draw,
     update = this.advance,
@@ -1686,19 +1686,19 @@ class GameObject extends Updatable {
      *   height: 50,
      *   color: 'red',
      *   // exclude-code:start
-     *   context: context,
+     *   cX: cX,
      *   // exclude-code:end
      *   render: function() {
-     *     this.context.fillStyle = this.color;
-     *     this.context.fillRect(0, 0, this.height, this.width);
+     *     this.cX.fillStyle = this.color;
+     *     this.cX.fillRect(0, 0, this.height, this.width);
      *   }
      * });
      *
      * function drawOrigin(gameObject) {
-     *   gameObject.context.fillStyle = 'yellow';
-     *   gameObject.context.beginPath();
-     *   gameObject.context.arc(gameObject.x, gameObject.y, 3, 0, 2*Math.PI);
-     *   gameObject.context.fill();
+     *   gameObject.cX.fillStyle = 'yellow';
+     *   gameObject.cX.beginPath();
+     *   gameObject.cX.arc(gameObject.x, gameObject.y, 3, 0, 2*Math.PI);
+     *   gameObject.cX.fill();
      * }
      *
      * gameObject.render();
@@ -1782,7 +1782,7 @@ class GameObject extends Updatable {
     super.init({
       width,
       height,
-      context,
+      cX,
 
       // @ifdef GAMEOBJECT_ANCHOR
       anchor,
@@ -1843,9 +1843,9 @@ class GameObject extends Updatable {
    * @param {Function} [filterObjects] - [Array.prototype.filter()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter) function which is used to filter which children to render.
    */
   render(filterObjects) {
-    const context = this.context
+    const cX = this.cX
 
-    context.save()
+    cX.save()
 
     // 1) translate to position
     //
@@ -1853,7 +1853,7 @@ class GameObject extends Updatable {
     // rather than always translating
     // @see https://jsperf.com/translate-or-if-statement/2
     if (this.x || this.y) {
-      context.translate(this.x, this.y)
+      cX.translate(this.x, this.y)
     }
 
     // @ifdef GAMEOBJECT_ROTATION
@@ -1862,7 +1862,7 @@ class GameObject extends Updatable {
     // it's faster to only rotate when set rather than always rotating
     // @see https://jsperf.com/rotate-or-if-statement/2
     if (this.rotation) {
-      context.rotate(this.rotation)
+      cX.rotate(this.rotation)
     }
     // @endif
 
@@ -1871,7 +1871,7 @@ class GameObject extends Updatable {
     // values are in the direction of the rotation rather than always
     // along the x/y axis
     if (this.sx || this.sy) {
-      context.translate(-this.sx, -this.sy)
+      cX.translate(-this.sx, -this.sy)
     }
     // @endif
 
@@ -1883,7 +1883,7 @@ class GameObject extends Updatable {
     // rather than always scaling
     // @see https://jsperf.com/scale-or-if-statement/4
     if (this.scaleX != 1 || this.scaleY != 1) {
-      context.scale(this.scaleX, this.scaleY)
+      cX.scale(this.scaleX, this.scaleY)
     }
     // @endif
 
@@ -1894,14 +1894,14 @@ class GameObject extends Updatable {
     const anchorY = -this.height * this.anchor.y
 
     if (anchorX || anchorY) {
-      context.translate(anchorX, anchorY)
+      cX.translate(anchorX, anchorY)
     }
     // @endif
 
     // @ifdef GAMEOBJECT_OPACITY
     // it's not really any faster to gate the global alpha
     // @see https://jsperf.com/global-alpha-or-if-statement/1
-    this.context.globalAlpha = this.opacity
+    this.cX.globalAlpha = this.opacity
     // @endif
 
     this._rf()
@@ -1910,7 +1910,7 @@ class GameObject extends Updatable {
     // 7) translate back to the anchor so children use the correct
     // x/y value from the anchor
     if (anchorX || anchorY) {
-      context.translate(-anchorX, -anchorY)
+      cX.translate(-anchorX, -anchorY)
     }
     // @endif
 
@@ -1924,7 +1924,7 @@ class GameObject extends Updatable {
     children.map((child) => child.render && child.render())
     // @endif
 
-    context.restore()
+    cX.restore()
   }
 
   /**
@@ -1948,9 +1948,9 @@ class GameObject extends Updatable {
    *    this.draw();
    *
    *    // outline the game object
-   *    this.context.strokeStyle = 'yellow';
-   *    this.context.lineWidth = 2;
-   *    this.context.strokeRect(0, 0, this.width, this.height);
+   *    this.cX.strokeStyle = 'yellow';
+   *    this.cX.lineWidth = 2;
+   *    this.cX.strokeRect(0, 0, this.width, this.height);
    *  }
    * });
    *
@@ -2149,11 +2149,11 @@ class GameObject extends Updatable {
    *     anchor: {x: 0.5, y: 0.5},
    *     color,
    *     // exclude-code:start
-   *     context: context,
+   *     cX: cX,
    *     // exclude-code:end
    *     render: function() {
-   *       this.context.fillStyle = this.color;
-   *       this.context.fillRect(0, 0, this.height, this.width);
+   *       this.cX.fillStyle = this.color;
+   *       this.cX.fillRect(0, 0, this.height, this.width);
    *     }
    *   });
    * }
@@ -2376,7 +2376,7 @@ class Sprite extends factory$2.class {
      * @memberof Sprite
      * @property {Animation} currentAnimation
      */
-    this.currentAnimation = firstAnimation
+    this.cA = firstAnimation
     this.width = this.width || firstAnimation.width
     this.height = this.height || firstAnimation.height
   }
@@ -2413,18 +2413,18 @@ class Sprite extends factory$2.class {
    * @param {String} name - Name of the animation to play.
    */
   playAnimation(name) {
-    this.currentAnimation = this.animations[name]
+    this.cA = this.animations[name]
 
-    if (!this.currentAnimation.loop) {
-      this.currentAnimation.reset()
+    if (!this.cA.loop) {
+      this.cA.reset()
     }
   }
 
   advance(dt) {
     super.advance(dt)
 
-    if (this.currentAnimation) {
-      this.currentAnimation.update(dt)
+    if (this.cA) {
+      this.cA.update(dt)
     }
   }
   // @endif
@@ -2432,7 +2432,7 @@ class Sprite extends factory$2.class {
   draw() {
     // @ifdef SPRITE_IMAGE
     if (this.image) {
-      this.context.drawImage(
+      this.cX.drawImage(
         this.image,
         0, 0, this.image.width, this.image.height,
       )
@@ -2440,20 +2440,20 @@ class Sprite extends factory$2.class {
     // @endif
 
     // @ifdef SPRITE_ANIMATION
-    if (this.currentAnimation) {
-      this.currentAnimation.render({
+    if (this.cA) {
+      this.cA.render({
         x: 0,
         y: 0,
         width: this.width,
         height: this.height,
-        context: this.context,
+        cX: this.cX,
       })
     }
     // @endif
 
     if (this.color) {
-      this.context.fillStyle = this.color
-      this.context.fillRect(0, 0, this.width, this.height)
+      this.cX.fillStyle = this.color
+      this.cX.fillRect(0, 0, this.width, this.height)
     }
   }
 }
@@ -2526,7 +2526,7 @@ function parseFont(font) {
  *   textAlign: 'center'
  * });
  * // exclude-code:start
- * text.context = context;
+ * text.cX = cX;
  * // exclude-code:end
  *
  * text.render();
@@ -2535,10 +2535,10 @@ function parseFont(font) {
  *
  * @param {Object} properties - Properties of the text.
  * @param {String} properties.text - The text to display.
- * @param {String} [properties.font] - The [font](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/font) style. Defaults to the main context font.
- * @param {String} [properties.color] - Fill color for the text. Defaults to the main context fillStyle.
+ * @param {String} [properties.font] - The [font](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingcX2D/font) style. Defaults to the main cX font.
+ * @param {String} [properties.color] - Fill color for the text. Defaults to the main cX fillStyle.
  * @param {Number} [properties.width] - Set a fixed width for the text. If set, the text will automatically be split into new lines that will fit the size when possible.
- * @param {String} [properties.textAlign='left'] - The [textAlign](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/textAlign) for the context. If the `dir` attribute is set to `rtl` on the main canvas, the text will automatically be aligned to the right, but you can override that by setting this property.
+ * @param {String} [properties.textAlign='left'] - The [textAlign](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingcX2D/textAlign) for the cX. If the `dir` attribute is set to `rtl` on the main canvas, the text will automatically be aligned to the right, but you can override that by setting this property.
  * @param {Number} [properties.lineHeight=1] - The distance between two lines of text.
  */
 class Text extends factory$2.class {
@@ -2656,9 +2656,9 @@ class Text extends factory$2.class {
     // s = strings
     this._s = []
     this._d = false
-    const context = this.context
+    const cX = this.cX
 
-    context.font = this.font
+    cX.font = this.font
 
     // @ifdef TEXT_AUTONEWLINE
     if (!this._s.length && this._fw) {
@@ -2669,7 +2669,7 @@ class Text extends factory$2.class {
       // split the string into lines that all fit within the fixed width
       for (; i <= parts.length; i++) {
         const str = parts.slice(start, i).join(' ')
-        const width = context.measureText(str).width
+        const width = cX.measureText(str).width
 
         if (width > this._fw) {
           this._s.push(parts.slice(start, i - 1).join(' '))
@@ -2687,7 +2687,7 @@ class Text extends factory$2.class {
 
       this.text.split('\n').map((str) => {
         this._s.push(str)
-        width = Math.max(width, context.measureText(str).width)
+        width = Math.max(width, cX.measureText(str).width)
       })
 
       this._w = this._fw || width
@@ -2696,7 +2696,7 @@ class Text extends factory$2.class {
 
     if (!this._s.length) {
       this._s.push(this.text)
-      this._w = this._fw || context.measureText(this.text).width
+      this._w = this._fw || cX.measureText(this.text).width
     }
 
     this.height = this._fs + ((this._s.length - 1) * this._fs * this.lineHeight)
@@ -2706,10 +2706,10 @@ class Text extends factory$2.class {
   draw() {
     let alignX = 0
     let textAlign = this.textAlign
-    const context = this.context
+    const cX = this.cX
 
     // @ifdef TEXT_RTL
-    textAlign = this.textAlign || (context.canvas.dir === 'rtl' ? 'right' : 'left')
+    textAlign = this.textAlign || (cX.canvas.dir === 'rtl' ? 'right' : 'left')
     // @endif
 
     // @ifdef TEXT_ALIGN||TEXT_RTL
@@ -2721,11 +2721,11 @@ class Text extends factory$2.class {
     // @endif
 
     this._s.map((str, index) => {
-      context.textBaseline = 'top'
-      context.textAlign = textAlign
-      context.fillStyle = this.color
-      context.font = this.font
-      context.fillText(str, alignX, this._fs * this.lineHeight * index)
+      cX.textBaseline = 'top'
+      cX.textAlign = textAlign
+      cX.fillStyle = this.color
+      cX.font = this.font
+      cX.fillText(str, alignX, this._fs * this.lineHeight * index)
     })
   }
 }
@@ -3142,7 +3142,7 @@ function initPointer(canvas = getCanvas()) {
  */
 function track(...objects) {
   objects.map((object) => {
-    const canvas = object.context ? object.context.canvas : getCanvas()
+    const canvas = object.cX ? object.cX.canvas : getCanvas()
     const pointer = pointers.get(canvas)
 
     // @ifdef DEBUG
@@ -3180,7 +3180,7 @@ function track(...objects) {
  */
 function untrack(...objects) {
   objects.map((object) => {
-    const canvas = object.context ? object.context.canvas : getCanvas()
+    const canvas = object.cX ? object.cX.canvas : getCanvas()
     const pointer = pointers.get(canvas)
 
     // @ifdef DEBUG
@@ -3239,7 +3239,7 @@ function untrack(...objects) {
  * @returns {Boolean} `true` if the pointer is currently over the object, `false` otherwise.
  */
 function pointerOver(object) {
-  const canvas = object.context ? object.context.canvas : getCanvas()
+  const canvas = object.cX ? object.cX.canvas : getCanvas()
   const pointer = pointers.get(canvas)
 
   // @ifdef DEBUG
@@ -3372,8 +3372,8 @@ class Button extends factory$3.class {
     this.textNode = factory$4({
       ...text,
 
-      // ensure the text uses the same context as the button
-      context: this.context,
+      // ensure the text uses the same cX as the button
+      cX: this.cX,
     })
 
     // if the user didn't set a width/height or use an image
@@ -3405,7 +3405,7 @@ class Button extends factory$3.class {
     button.addEventListener('keydown', (evt) => this._kd(evt))
     button.addEventListener('keyup', (evt) => this._ku(evt))
 
-    addToDom(button, this.context.canvas)
+    addToDom(button, this.cX.canvas)
 
     this._uw()
     this._p()
@@ -3615,10 +3615,10 @@ factory$5.class = Button
 /**
  * Clear the canvas.
  */
-function clear(context) {
-  const canvas = context.canvas
+function clear(cX) {
+  const canvas = cX.canvas
 
-  context.clearRect(0, 0, canvas.width, canvas.height)
+  cX.clearRect(0, 0, canvas.width, canvas.height)
 }
 
 /**
@@ -3663,14 +3663,14 @@ function clear(context) {
  * @param {Function} properties.render - Function called every frame to render the game.
  * @param {Number}   [properties.fps=60] - Desired frame rate.
  * @param {Boolean}  [properties.clearCanvas=true] - Clear the canvas every frame before the `render()` function is called.
- * @param {CanvasRenderingContext2D} [properties.context] - The context that should be cleared each frame if `clearContext` is not set to `false`. Defaults to [core.getContext()](api/core#getContext).
+ * @param {CanvasRenderingcX2D} [properties.cX] - The cX that should be cleared each frame if `clearcX` is not set to `false`. Defaults to [core.getContext()](api/core#getContext).
  */
 function GameLoop({
   fps = 60,
   clearCanvas = true,
   update = noop,
   render,
-  context = getContext(),
+  cX = getContext(),
 } = {}) {
   // check for required functions
   // @ifdef DEBUG
@@ -3711,7 +3711,7 @@ function GameLoop({
       accumulator -= delta
     }
 
-    clearFn(context)
+    clearFn(cX)
     loop.render()
   }
 
@@ -4059,7 +4059,7 @@ class Grid extends factory$2.class {
     this._uw()
 
     // reverse columns. direction property overrides canvas dir
-    const dir = this.context.canvas.dir
+    const dir = this.cX.canvas.dir
     const rtl = (dir === 'rtl' && !this.dir) || this.dir === 'rtl'
 
     this._rtl = rtl
@@ -4401,16 +4401,16 @@ function registerPlugin(kontraObj, pluginObj) {
   // create interceptor list and functions
   if (!objectProto._inc) {
     objectProto._inc = {}
-    objectProto._bInc = function beforePlugins(context, method, ...args) {
+    objectProto._bInc = function beforePlugins(cX, method, ...args) {
       return this._inc[method].before.reduce((acc, fn) => {
-        const newArgs = fn(context, ...acc)
+        const newArgs = fn(cX, ...acc)
 
         return newArgs || acc
       }, args)
     }
-    objectProto._aInc = function afterPlugins(context, method, result, ...args) {
+    objectProto._aInc = function afterPlugins(cX, method, result, ...args) {
       return this._inc[method].after.reduce((acc, fn) => {
-        const newResult = fn(context, acc, ...args)
+        const newResult = fn(cX, acc, ...args)
 
         return newResult || acc
       }, result)
@@ -4986,8 +4986,8 @@ class Quadtree {
      if (this._o.length || this._d === 0 ||
          (this._p && this._p._b)) {
 
-       context.strokeStyle = 'red';
-       context.strokeRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
+       cX.strokeStyle = 'red';
+       cX.strokeRect(this.bounds.x, this.bounds.y, this.bounds.width, this.bounds.height);
 
        if (this._s.length) {
          for (let i = 0; i < 4; i++) {
@@ -5104,9 +5104,9 @@ class Scene extends factory$2.class {
       ...props,
     })
 
-    addToDom(section, this.context.canvas)
+    addToDom(section, this.cX.canvas)
 
-    const canvas = this.context.canvas
+    const canvas = this.cX.canvas
 
     /**
      * The camera object which is used as the focal point for the scene. The scene will not render objects that are outside the bounds of the camera.
@@ -5129,7 +5129,7 @@ class Scene extends factory$2.class {
 
       // only set the cameras position based on scale
       // but not the width/height
-      const canvas = this.context.canvas
+      const canvas = this.cX.canvas
 
       this.camera._wx = this.camera.x * this.scaleX
       this.camera._wy = this.camera.y * this.scaleY
@@ -5188,7 +5188,7 @@ class Scene extends factory$2.class {
     super.removeChild(object)
 
     getAllNodes(object).map((node) => {
-      addToDom(node, this.context.canvas)
+      addToDom(node, this.cX.canvas)
     })
   }
 
@@ -5516,7 +5516,7 @@ factory$a.class = SpriteSheet
  * @param {Number} properties.height - Height of the tile map (in number of tiles).
  * @param {Number} properties.tilewidth - Width of a single tile (in pixels).
  * @param {Number} properties.tileheight - Height of a single tile (in pixels).
- * @param {CanvasRenderingContext2D} [properties.context] - The context the tile engine should draw to. Defaults to [core.getContext()](api/core#getContext)
+ * @param {CanvasRenderingcX2D} [properties.cX] - The cX the tile engine should draw to. Defaults to [core.getContext()](api/core#getContext)
  *
  * @param {Object[]} properties.tilesets - Array of tileset objects.
  * @param {Number} properties.tilesetN.firstgid - First tile index of the tileset. The first tileset will have a firstgid of 1 as 0 represents an empty tile.
@@ -5544,7 +5544,7 @@ function TileEngine(properties) {
     height,
     tilewidth,
     tileheight,
-    context = getContext(),
+    cX = getContext(),
     tilesets,
     layers,
   } = properties
@@ -5555,7 +5555,7 @@ function TileEngine(properties) {
   // create an off-screen canvas for pre-rendering the map
   // @see http://jsperf.com/render-vs-prerender
   const offscreenCanvas = document.createElement('canvas')
-  const offscreenContext = offscreenCanvas.getContext('2d')
+  const offscreencX = offscreenCanvas.getContext('2d')
 
   offscreenCanvas.width = mapwidth
   offscreenCanvas.height = mapheight
@@ -5606,11 +5606,11 @@ function TileEngine(properties) {
   const tileEngine = Object.assign({
 
     /**
-     * The context the tile engine will draw to.
+     * The cX the tile engine will draw to.
      * @memberof TileEngine
-     * @property {CanvasRenderingContext2D} context
+     * @property {CanvasRenderingcX2D} cX
      */
-    context,
+    cX,
 
     /**
      * The width of the tile map (in pixels).
@@ -6016,11 +6016,11 @@ function TileEngine(properties) {
    * @private
    *
    * @param {Object} layer - Layer data.
-   * @param {Context} context - Context to draw layer to.
+   * @param {cX} cX - cX to draw layer to.
    */
-  function renderLayer(layer, context) {
-    context.save()
-    context.globalAlpha = layer.opacity;
+  function renderLayer(layer, cX) {
+    cX.save()
+    cX.globalAlpha = layer.opacity;
 
     (layer.data || []).map((tile, index) => {
 
@@ -6056,14 +6056,14 @@ function TileEngine(properties) {
       const sx = (offset % cols) * (tilewidth + margin)
       const sy = (offset / cols | 0) * (tileheight + margin)
 
-      context.drawImage(
+      cX.drawImage(
         image,
         sx, sy, tilewidth, tileheight,
         x, y, tilewidth, tileheight,
       )
     })
 
-    context.restore()
+    cX.restore()
   }
 
   /**
@@ -6077,7 +6077,7 @@ function TileEngine(properties) {
         layerMap[layer.name] = layer
 
         if (layer.data && layer.visible !== false) {
-          tileEngine._r(layer, offscreenContext)
+          tileEngine._r(layer, offscreencX)
         }
       })
     }
@@ -6094,7 +6094,7 @@ function TileEngine(properties) {
     const sWidth = Math.min(canvas.width, width)
     const sHeight = Math.min(canvas.height, height)
 
-    tileEngine.context.drawImage(
+    tileEngine.cX.drawImage(
       canvas,
       tileEngine.sx, tileEngine.sy, sWidth, sHeight,
       0, 0, sWidth, sHeight,

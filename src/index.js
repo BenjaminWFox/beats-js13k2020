@@ -54,7 +54,7 @@ const COLORS = {
 }
 
 let canvas
-let context
+let cX
 let bgCanvas
 // let bgCtx
 let lCtx
@@ -352,7 +352,7 @@ function BeatSprite(i) {
 
   this.render = () => {
     console.log()
-    context.drawImage(this.image, this.x, this.y)
+    cX.drawImage(this.image, this.x, this.y)
   }
 }
 
@@ -501,7 +501,7 @@ function setCurrentLevel(i) {
 }
 
 function resetAllAssets() {
-  context.clearRect(0, 0, canvas.width, canvas.height)
+  cX.clearRect(0, 0, canvas.width, canvas.height)
   score = 0
   beatsInTransit = []
   beatsToHittest = []
@@ -982,21 +982,21 @@ function drawBackground() {
   // drawRows(context)
 
   // DRAW ZONE:
-  context.fillStyle = '#ffffff'
-  context.strokeStyle = '#ffffff'
-  context.setLineDash([4, 6])
-  context.strokeRect(-2, ZONE_TOP, CANVAS_WIDTH + 4, ZONE_HEIGHT)
+  cX.fillStyle = '#ffffff'
+  cX.strokeStyle = '#ffffff'
+  cX.setLineDash([4, 6])
+  cX.strokeRect(-2, ZONE_TOP, CANVAS_WIDTH + 4, ZONE_HEIGHT)
 
   // bass
-  context.fillStyle = '#222222'
-  context.strokeStyle = '#f9f9f9'
-  context.fillRect(BASS_X, 0, 1, BOARD_HEIGHT)
+  cX.fillStyle = '#222222'
+  cX.strokeStyle = '#f9f9f9'
+  cX.fillRect(BASS_X, 0, 1, BOARD_HEIGHT)
   // kick
-  context.fillRect(KICK_X, 0, 1, BOARD_HEIGHT)
+  cX.fillRect(KICK_X, 0, 1, BOARD_HEIGHT)
   // snare
-  context.fillRect(SNARE_X, 0, 1, BOARD_HEIGHT)
+  cX.fillRect(SNARE_X, 0, 1, BOARD_HEIGHT)
   // hihat
-  context.fillRect(HIHAT_X, 0, 1, BOARD_HEIGHT)
+  cX.fillRect(HIHAT_X, 0, 1, BOARD_HEIGHT)
 
 }
 /* #endregion */
@@ -1092,7 +1092,7 @@ function startGameWhenReady() {
 
 // EVERYTHING STARTS HERE
 window.addEventListener('load', () => {
-  ({ canvas, context } = initKontra('board'))
+  ({ canvas, cX } = initKontra('board'))
 
   window.addEventListener('keydown', handleKeyboardControl)
 
