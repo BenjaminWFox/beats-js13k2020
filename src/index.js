@@ -77,7 +77,7 @@ let score = 0
 let audioReady = undefined
 
 let loadedLevels = 0
-const levels = [lt, l4]
+const levels = [lt, l6]
 const ln = ['tutorial', 'Get it Pumping', 'Hello Hat', 'Highs and Lows', 'FJ Cruiser', '']
 // const levels = [lt, ltest]
 
