@@ -1,57 +1,58 @@
-function Snare(context) {
-  this.context = context
+function Snare(c) {
+  // c is for context
+  this.c = c
 }
 
-Snare.prototype.noiseBuffer = function () {
-  const bufferSize = this.context.sampleRate
-  const buffer = this.context.createBuffer(1, bufferSize, this.context.sampleRate)
-  const output = buffer.getChannelData(0)
+Snare.prototype.nb = function () {
+  const bS = this.c.sampleRate
+  const b = this.c.createBuffer(1, bS, this.c.sampleRate)
+  const o = b.getChannelData(0)
 
-  for (let i = 0; i < bufferSize; i++) {
-    output[i] = (Math.random() * 2) - 1
+  for (let i = 0; i < bS; i++) {
+    o[i] = (Math.random() * 2) - 1
   }
 
-  return buffer
+  return b
 }
 
 Snare.prototype.setup = function () {
-  this.noise = this.context.createBufferSource()
-  this.noise.buffer = this.noiseBuffer()
-  const noiseFilter = this.context.createBiquadFilter()
+  this.n = this.c.createBufferSource()
+  this.n.buffer = this.nb()
+  const nF = this.c.createBiquadFilter()
 
-  noiseFilter.type = 'highpass'
-  noiseFilter.frequency.value = 1000
-  this.noise.connect(noiseFilter)
+  nF.type = 'highpass'
+  nF.frequency.value = 1000
+  this.n.connect(nF)
   // …
 
-  this.noiseEnvelope = this.context.createGain()
-  noiseFilter.connect(this.noiseEnvelope)
+  this.nE = this.c.createGain()
+  nF.connect(this.nE)
 
-  this.noiseEnvelope.connect(this.context.destination)
+  this.nE.connect(this.c.destination)
 
   // ...
-  this.osc = this.context.createOscillator()
-  this.osc.type = 'triangle'
+  this.o = this.c.createOscillator()
+  this.o.type = 'triangle'
 
-  this.oscEnvelope = this.context.createGain()
-  this.osc.connect(this.oscEnvelope)
-  this.oscEnvelope.connect(this.context.destination)
+  this.oE = this.c.createGain()
+  this.o.connect(this.oE)
+  this.oE.connect(this.c.destination)
 }
 
 Snare.prototype.trigger = function (time) {
   this.setup()
 
-  this.noiseEnvelope.gain.setValueAtTime(.5, time)
-  this.noiseEnvelope.gain.exponentialRampToValueAtTime(0.01, time + 0.2)
-  this.noise.start(time)
+  this.nE.gain.setValueAtTime(.5, time)
+  this.nE.gain.exponentialRampToValueAtTime(0.01, time + 0.2)
+  this.n.start(time)
 
-  this.osc.frequency.setValueAtTime(100, time)
-  this.oscEnvelope.gain.setValueAtTime(0.7, time)
-  this.oscEnvelope.gain.exponentialRampToValueAtTime(0.01, time + 0.1)
-  this.osc.start(time)
+  this.o.frequency.setValueAtTime(100, time)
+  this.oE.gain.setValueAtTime(0.7, time)
+  this.oE.gain.exponentialRampToValueAtTime(0.01, time + 0.1)
+  this.o.start(time)
 
-  this.osc.stop(time + 0.2)
-  this.noise.stop(time + 0.2)
+  this.o.stop(time + 0.2)
+  this.n.stop(time + 0.2)
 }
 
 export default Snare

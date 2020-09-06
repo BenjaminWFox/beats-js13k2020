@@ -1,27 +1,27 @@
 
-function Kick(context) {
-  this.context = context
+function Kick(c) {
+  this.c = c
 }
 
 Kick.prototype.setup = function () {
-  this.osc = this.context.createOscillator()
-  this.gain = this.context.createGain()
-  this.osc.connect(this.gain)
-  this.gain.connect(this.context.destination)
+  this.o = this.c.createOscillator()
+  this.g = this.c.createGain()
+  this.o.connect(this.g)
+  this.g.connect(this.c.destination)
 }
 
 Kick.prototype.trigger = function (time) {
   this.setup()
 
-  this.osc.frequency.setValueAtTime(200, time)
-  this.gain.gain.setValueAtTime(1, time)
+  this.o.frequency.setValueAtTime(200, time)
+  this.g.gain.setValueAtTime(1, time)
 
-  this.osc.frequency.exponentialRampToValueAtTime(0.01, time + 1.25)
-  this.gain.gain.exponentialRampToValueAtTime(0.01, time + 1.25)
+  this.o.frequency.exponentialRampToValueAtTime(0.01, time + 1.25)
+  this.g.gain.exponentialRampToValueAtTime(0.01, time + 1.25)
 
-  this.osc.start(time)
+  this.o.start(time)
 
-  this.osc.stop(time + 1.25)
+  this.o.stop(time + 1.25)
 }
 
 export default Kick
