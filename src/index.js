@@ -11,7 +11,7 @@ import l2 from './assets/images/levels/l2.png'
 import l3 from './assets/images/levels/l3.png'
 import l4 from './assets/images/levels/l4.png'
 import l5 from './assets/images/levels/l5.png'
-import ltest from './assets/images/levels/ltest2.png'
+// import ltest from './assets/images/levels/ltest2.png'
 /* #endregion */
 
 /* #region ******** CONSTANTS & GLOBAL VARS ******** */
@@ -77,8 +77,8 @@ let progress
 const progressVariable = 'b2020js13'
 
 let loadedLevels = 0
-const levels = [lt, ltest, ltest, ltest, ltest, ltest]
-// const levels = [lt, l1, l2, l3, l4, l5]
+// const levels = [lt, ltest, ltest, ltest, ltest, ltest]
+const levels = [lt, l1, l2, l3, l4, l5]
 const ln = ['tutorial', 'Get it Pumping', 'Hello Hat', 'Highs and Lows', 'FJ Cruiser', 'Ensnared']
 // const levels = [lt, ltest]
 
