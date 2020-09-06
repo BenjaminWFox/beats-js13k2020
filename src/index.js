@@ -1040,6 +1040,7 @@ function handleKeyboardControl(event) {
       }
       else if (event.code === 'KeyT') {
         if (!levelStarted) {
+          bass.trigger(aCtx.currentTime)
           startLevel()
         }
       }
