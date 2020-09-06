@@ -1155,7 +1155,7 @@ function getElements() {
 }
 
 function initConstants() {
-  VIEW_HEIGHT = window.innerHeight
+  VIEW_HEIGHT = 1200 // window.innerHeight
   BOARD_HEIGHT = VIEW_HEIGHT
   // VIEW_WIDTH = window.innerWidth
   SECTION_HEIGHT = Math.floor(VIEW_HEIGHT / HORIZONTAL_SECTIONS)
@@ -1188,8 +1188,10 @@ function initConstants() {
 
 function initUi() {
   $('#body').style.height = `${VIEW_HEIGHT}px`
+  $('#body').style.overflow = 'hidden'
   canvas.height = VIEW_HEIGHT
   canvas.width = SECTION_HEIGHT * 5
+  canvas.style.height = '100vh'
 }
 
 function initBeats(showKeys = false) {
