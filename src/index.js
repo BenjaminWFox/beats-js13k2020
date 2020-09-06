@@ -11,7 +11,7 @@ import l2 from './assets/images/levels/l2.png'
 import l3 from './assets/images/levels/l3.png'
 import l4 from './assets/images/levels/l4.png'
 import l5 from './assets/images/levels/l5.png'
-// import ltest from './assets/images/levels/ltest.png'
+import ltest from './assets/images/levels/ltest2.png'
 /* #endregion */
 
 /* #region ******** CONSTANTS & GLOBAL VARS ******** */
@@ -61,7 +61,7 @@ let lCtx
 let scene
 let gamescene
 let titlescene
-const tutorialText = 'When the beats pass through\nthe zone at the bottom, press\nthe key shown!\n\nTiming is everything...\nIn the game they don\'t stop!'
+const tutorialText = 'When the beats pass through\nthe zone at the bottom, press\nthe right key (shown here)!\n\nTiming is everything...\nIn the game they don\'t stop!'
 let introscene
 let prelevelscene
 let postlevelscene
@@ -73,9 +73,12 @@ let spawnsComplete = false
 let loop
 let score = 0
 let audioReady = undefined
+let progress
+const progressVariable = 'b2020js13'
 
 let loadedLevels = 0
-const levels = [lt, l1, l2, l3, l4, l5]
+const levels = [lt, ltest, ltest, ltest, ltest, ltest]
+// const levels = [lt, l1, l2, l3, l4, l5]
 const ln = ['tutorial', 'Get it Pumping', 'Hello Hat', 'Highs and Lows', 'FJ Cruiser', 'Ensnared']
 // const levels = [lt, ltest]
 
@@ -483,15 +486,15 @@ function replaySameLevel() {
 }
 
 function setCurrentLevel(i) {
-  currentLevel = i
+  currentLevel = +i
 
-  if (i >= levels.length) {
+  if (+i >= levels.length) {
     console.log('OUT OF LEVELS')
 
     setScene(gameoverscene)
   }
   else {
-    currentLevel = i
+    currentLevel = +i
     levelStarted = false
     spawnsComplete = false
     clearMusicTrackers()
@@ -517,8 +520,27 @@ function setSpawnsComplete() {
   spawnsComplete = true
 }
 
+function saveProgress(i) {
+  let p = localStorage.getItem(progressVariable)?.split('')
+
+  if (!p) {
+    p = [i, i + 1]
+  }
+  else {
+    if (!p.includes(i.toString())) {
+      p.push(i)
+    }
+    if (!p.includes((i + 1).toString()) && i + 1 < levels.length - 1) {
+      p.push(i + 1)
+    }
+  }
+  console.log(p)
+  localStorage.setItem(progressVariable, p.join(''))
+}
+
 function completeLevel() {
   console.log('Level Complete')
+  saveProgress(currentLevel)
   setScene(postlevelscene)
 }
 
@@ -1021,6 +1043,11 @@ function handleKeyboardControl(event) {
           startLevel()
         }
       }
+      else if (event.key > 0 && event.key < 6) {
+        if (progress.includes(event.key)) {
+          setCurrentLevel(event.key)
+        }
+      }
       else {
         playFromKeycode(event.code)
       }
@@ -1205,7 +1232,7 @@ function initScenes() {
       }),
       Text({
         x: CANVAS_MIDX,
-        y: 500,
+        y: 475,
         color: COLORS.good,
         anchor: { x: .5, y: .5 },
         text: 'SKIP\n[ space ]',
@@ -1225,10 +1252,19 @@ function initScenes() {
       introscene.children[2],
       Text({
         x: CANVAS_MIDX,
-        y: 650,
+        y: 615,
         color: COLORS.ok,
         anchor: { x: .5, y: .5 },
         text: 'TUTORIAL\n[ t ]',
+        textAlign: 'center',
+        font: gFont(30),
+      }),
+      Text({
+        x: CANVAS_MIDX,
+        y: 750,
+        color: COLORS.good,
+        anchor: { x: .5, y: .5 },
+        text: '',
         textAlign: 'center',
         font: gFont(30),
       }),
@@ -1241,11 +1277,15 @@ function initScenes() {
       this.children[2].text = 'START\n[ space ]',
       this.children[0].opacity = 0
       this.children[2].opacity = 0
-      this.children[1].y = 350
+      this.children[1].y = 325
       this.children[1].opacity = 0
       this.children[1].color = COLORS.perfect
       this.children[1].text = 'Prepare For\nManual Re-entry...'
       this.children[1].font = gFont(30)
+      progress = localStorage.getItem(progressVariable)?.split('')
+      if (progress) {
+        this.children[4].text = `JUMP TO LEVEL\n[ ${progress.join(', ')} ]`
+      }
     },
     onHide() {
       clearAllBeats()
@@ -1306,7 +1346,7 @@ function initScenes() {
       this.children[2].text = 'NEXT\n[ space ]\n\nRETRY\n[ r ]',
       this.children[0].opacity = 0
       this.children[2].opacity = 0
-      this.children[1].y = 350
+      this.children[1].y = 300
       this.children[1].opacity = 0
       this.children[1].color = COLORS.perfect
       this.children[1].text = `Score:\n${score}/\n${levels[currentLevel].maxScore}`
