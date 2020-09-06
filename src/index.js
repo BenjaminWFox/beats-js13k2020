@@ -212,7 +212,7 @@ const SONG = [
   [[[, , 13, 13, 16, 13, 18, 13, 20, 18, 16, 16, 20, 16, 23, 16, 20, 16, 11, 11, 15, 11, 18, 11, 18, 16, 9, 9, 13, 9, 16, 9, 16, 15]]],
   [0],
   60,
-  { "title": "New Song", "instruments": ["Instrument 0"], "patterns": ["Pattern 0"] }
+  {}
 ]
 function getNewSong() {
   // Calculate how many times to loop the song. Add 1 because the song starts before the beats are in the 'zone'
@@ -1007,11 +1007,13 @@ function handleKeyboardControl(event) {
   switch (scene.id) {
     case scenes.introscene:
       if (event.code === 'Space') {
+        bass.trigger(aCtx.currentTime)
         setScene(titlescene)
       }
       break
     case scenes.titlescene:
       if (event.code === 'Space') {
+        bass.trigger(aCtx.currentTime)
         goToNextLevel()
       }
       else if (event.code === 'KeyT') {
@@ -1025,6 +1027,7 @@ function handleKeyboardControl(event) {
       break
     case scenes.prelevelscene:
       if (event.code === 'Space') {
+        bass.trigger(aCtx.currentTime)
         setScene(gamescene)
       }
       break
@@ -1038,6 +1041,7 @@ function handleKeyboardControl(event) {
       break
     case scenes.postlevelscene:
       if (event.code === 'Space') {
+        bass.trigger(aCtx.currentTime)
         goToNextLevel()
       }
       if (event.code === 'KeyR') {
@@ -1053,31 +1057,18 @@ function playFromKeycode(code) {
   switch (code) {
     case 'KeyD':
       bass.trigger(aCtx.currentTime)
-      // lanesO.bass.play()
-      // zzfx(...[,0,75,,.05,.5,,,-0.1,,,,,,,,,,.05])
-      // zzfx(...[,0,75,,,.5,,,-0.2,.2,,,,,,,,.9,.1])
-      // zzfx(...[,0,75,,,.75,,,-0.1,,,,,,,,,.9,.1])
-      // zzfx(...[,0,75,,,.45,,,-0.1,-0.2,,,,,,,,.9,.1])
-      // zzfx(...[,0,75,,,.45,,,-0.1,-0.2,,,,,,,,.9,.1])
       checkCollision(0)
       break
     case 'KeyF':
       kick.trigger(aCtx.currentTime)
-      // lanesO.kick.play()
-      // zzfx(...[,0,125,,.05,.25,,2.5,-0.1]) // KICK
-      // zzfx(...[,0,110,,,.05,1,.8,-0.2,-0.4,,,,,,,,.5,.29])
-      // zzfx(...[,0,115,,,.45,,,-0.1,-0.2,,,,,,,,.9,.1])
-      // zzfx(...[,0,125,,,.5,,,-0.2,-0.1,,,,,,,,.5,.05])
       checkCollision(1)
       break
     case 'KeyJ':
       snare.trigger(aCtx.currentTime)
-      // lanesO.snare.play()
       checkCollision(2)
       break
     case 'KeyK':
       hihat.trigger(aCtx.currentTime)
-      // lanesO.hihat.play()
       checkCollision(3)
       break
     default:
