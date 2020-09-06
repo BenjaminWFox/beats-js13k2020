@@ -123,7 +123,7 @@ function init(canvas) {
 
   // @ifdef DEBUG
   if (!canvasEl) {
-    throw Error('You must provide a canvas element for the game')
+
   }
   // @endif
 
@@ -3147,7 +3147,7 @@ function track(...objects) {
 
     // @ifdef DEBUG
     if (!pointer) {
-      throw new ReferenceError('Pointer events not initialized for the objects canvas')
+
     } // @endif
 
     // override the objects render function to keep track of render
@@ -3185,7 +3185,7 @@ function untrack(...objects) {
 
     // @ifdef DEBUG
     if (!pointer) {
-      throw new ReferenceError('Pointer events not initialized for the objects canvas')
+
     } // @endif
 
     // restore original render function to no longer track render order
@@ -3244,7 +3244,7 @@ function pointerOver(object) {
 
   // @ifdef DEBUG
   if (!pointer) {
-    throw new ReferenceError('Pointer events not initialized for the objects canvas')
+
   } // @endif
 
   return pointer._o.includes(object) && getCurrentObject(pointer) === object
@@ -3675,7 +3675,7 @@ function GameLoop({
   // check for required functions
   // @ifdef DEBUG
   if (!render) {
-    throw Error('You must provide a render() function')
+
   }
   // @endif
 
@@ -4545,7 +4545,7 @@ class Pool {
           !(obj.update && obj.init &&
              obj.isAlive && obj.render)
         )) {
-      throw Error('Must provide create() function which returns an object with init(), update(), render(), and isAlive() functions')
+
     }
     // @endif
 
@@ -5364,7 +5364,7 @@ class SpriteSheet {
   constructor({ image, frameWidth, frameHeight, frameMargin, animations } = {}) {
     // @ifdef DEBUG
     if (!image) {
-      throw Error('You must provide an Image for the SpriteSheet')
+
     }
     // @endif
 
@@ -5475,7 +5475,7 @@ class SpriteSheet {
 
       // @ifdef DEBUG
       if (frames === undefined) {
-        throw Error(`Animation ${ name } must provide a frames property`)
+
       }
       // @endif
 
@@ -5951,7 +5951,7 @@ function TileEngine(properties) {
     if (tileset.source) {
       // @ifdef DEBUG
       if (!window.__k) {
-        throw Error('You must use "load" or "loadData" to resolve tileset.source')
+
       }
       // @endif
 
@@ -5959,7 +5959,7 @@ function TileEngine(properties) {
 
       // @ifdef DEBUG
       if (!source) {
-        throw Error(`You must load the tileset source "${tileset.source}" before loading the tileset`)
+
       }
       // @endif
 
@@ -5971,7 +5971,7 @@ function TileEngine(properties) {
     if (`${tileset.image}` === tileset.image) {
       // @ifdef DEBUG
       if (!window.__k) {
-        throw Error('You must use "load" or "loadImage" to resolve tileset.image')
+
       }
       // @endif
 
@@ -5979,7 +5979,7 @@ function TileEngine(properties) {
 
       // @ifdef DEBUG
       if (!image) {
-        throw Error(`You must load the image "${tileset.image}" before loading the tileset`)
+
       }
       // @endif
 
