@@ -41,7 +41,7 @@ HiHat.prototype.trigger = function (time) {
 
   // Define the volume envelope
   this.g.gain.setValueAtTime(0.00001, time)
-  this.g.gain.exponentialRampToValueAtTime(1, time + 0.02)
+  this.g.gain.exponentialRampToValueAtTime(.75, time + 0.02)
   this.g.gain.exponentialRampToValueAtTime(0.3, time + 0.08)
   this.g.gain.exponentialRampToValueAtTime(0.00001, time + 0.5)
 }
