@@ -371,10 +371,10 @@ function getBeatImage(fillColor, strokeColor, key, showDebug) {
 
   const sCtx = sCanvas.getContext('2d')
 
-  if (showDebug) {
-    sCtx.strokeStyle = 'red'
-    sCtx.strokeRect(0, 0, SECTION_HEIGHT, SECTION_HEIGHT)
-  }
+  // if (showDebug) {
+  //   sCtx.strokeStyle = 'red'
+  //   sCtx.strokeRect(0, 0, SECTION_HEIGHT, SECTION_HEIGHT)
+  // }
   sCtx.fillStyle = fillColor
   sCtx.strokeStyle = strokeColor
   sCtx.beginPath()
@@ -1000,7 +1000,7 @@ function renderAnyPoppers() {
 /* #region ******** DRAWING ******** */
 
 function drawBackground() {
-  drawDebugZones(cX)
+  // drawDebugZones(cX)
   // drawRows(context)
 
   // DRAW ZONE:
@@ -1457,31 +1457,31 @@ function blinkOverTime(c, t, dur, el) {
 /* #endregion */
 
 /* #region ******** DEBUG ******** */
-const drawRows = (pCtx) => {
-  for (let i = 0; i < HORIZONTAL_SECTIONS; i += 1) {
-    pCtx.save()
-    pCtx.strokeStyle = 'blue'
-    pCtx.strokeRect(0, SECTION_HEIGHT * i, CANVAS_WIDTH, SECTION_HEIGHT)
-    pCtx.restore()
-  }
-}
+// const drawRows = (pCtx) => {
+//   for (let i = 0; i < HORIZONTAL_SECTIONS; i += 1) {
+//     pCtx.save()
+//     pCtx.strokeStyle = 'blue'
+//     pCtx.strokeRect(0, SECTION_HEIGHT * i, CANVAS_WIDTH, SECTION_HEIGHT)
+//     pCtx.restore()
+//   }
+// }
 
-function drawDebugZones(pCtx) {
-  const colors = ['red', 'orange', 'yellow', 'green', 'blue']
-  const zoneArr = [
-    [ZONE_CHECK_TOP, ZONE_CHECK_BOTTOM],
-    // [ZONE_CHECK_MEH_TOP, ZONE_CHECK_MEH_BOTTOM],
-    [ZONE_CHECK_OK_TOP, ZONE_CHECK_OK_BOTTOM],
-    [ZONE_CHECK_GOOD_TOP, ZONE_CHECK_GOOD_BOTTOM],
-    [ZONE_CHECK_PERFECT_TOP, ZONE_CHECK_PERFECT_BOTTOM],
-  ]
+// function drawDebugZones(pCtx) {
+//   const colors = ['red', 'orange', 'yellow', 'green', 'blue']
+//   const zoneArr = [
+//     [ZONE_CHECK_TOP, ZONE_CHECK_BOTTOM],
+//     // [ZONE_CHECK_MEH_TOP, ZONE_CHECK_MEH_BOTTOM],
+//     [ZONE_CHECK_OK_TOP, ZONE_CHECK_OK_BOTTOM],
+//     [ZONE_CHECK_GOOD_TOP, ZONE_CHECK_GOOD_BOTTOM],
+//     [ZONE_CHECK_PERFECT_TOP, ZONE_CHECK_PERFECT_BOTTOM],
+//   ]
 
-  zoneArr.forEach(([top, bottom], i) => {
-    const x = 50 + (4 * (i + 1))
-    const y = top
+//   zoneArr.forEach(([top, bottom], i) => {
+//     const x = 50 + (4 * (i + 1))
+//     const y = top
 
-    pCtx.fillStyle = colors[i]
-    pCtx.fillRect(x, y, 4, bottom - top)
-  })
-}
+//     pCtx.fillStyle = colors[i]
+//     pCtx.fillRect(x, y, 4, bottom - top)
+//   })
+// }
 /* #endregion */
