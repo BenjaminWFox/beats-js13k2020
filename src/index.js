@@ -131,7 +131,7 @@ const result = {
     p: 250,
   },
   b: {
-    t: 'BAD',
+    t: 'MISS',
     c: COLORS.bad,
     p: -500,
   },
