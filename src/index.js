@@ -1145,8 +1145,8 @@ function initGame() {
   initBeats()
   initScenes()
 
-  // setScene(introscene)
-  setScene(titlescene)
+  setScene(introscene)
+  // setScene(titlescene)
 }
 
 function getElements() {
