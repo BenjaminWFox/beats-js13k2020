@@ -1000,14 +1000,14 @@ function renderAnyPoppers() {
 /* #region ******** DRAWING ******** */
 
 function drawBackground() {
-  // drawDebugZones(cX)
+  drawDebugZones(cX)
   // drawRows(context)
 
   // DRAW ZONE:
   cX.fillStyle = '#ffffff'
   cX.strokeStyle = '#ffffff'
   cX.setLineDash([4, 6])
-  cX.strokeRect(-2, ZONE_TOP, CANVAS_WIDTH + 4, ZONE_HEIGHT)
+  cX.strokeRect(-2, ZONE_TOP - (SECTION_HEIGHT * .08), CANVAS_WIDTH + 4, ZONE_HEIGHT * 1.08)
 
   // bass
   cX.fillStyle = '#222222'
@@ -1145,8 +1145,8 @@ function initGame() {
   initBeats()
   initScenes()
 
-  setScene(introscene)
-  // setScene(titlescene)
+  // setScene(introscene)
+  setScene(titlescene)
 }
 
 function getElements() {
@@ -1173,12 +1173,12 @@ function initConstants() {
   ZONE_CHECK_BOTTOM = (SECTION_HEIGHT * 15.5)
   // ZONE_CHECK_MEH_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
   // ZONE_CHECK_MEH_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
-  ZONE_CHECK_OK_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
-  ZONE_CHECK_GOOD_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 2.5)))
-  ZONE_CHECK_PERFECT_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 6)))
-  ZONE_CHECK_OK_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
-  ZONE_CHECK_GOOD_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 3)))
-  ZONE_CHECK_PERFECT_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT))
+  ZONE_CHECK_OK_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.25)))
+  ZONE_CHECK_GOOD_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 2)))
+  ZONE_CHECK_PERFECT_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 3.5)))
+  ZONE_CHECK_OK_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 3)))
+  ZONE_CHECK_GOOD_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT))
+  ZONE_CHECK_PERFECT_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT * 1.3))
 
   BASS_X = (CANVAS_MIDX - ((SECTION_HEIGHT / 2) * 3))
   KICK_X = CANVAS_MIDX - (SECTION_HEIGHT / 2)
@@ -1466,22 +1466,24 @@ function blinkOverTime(c, t, dur, el) {
 //   }
 // }
 
-// function drawDebugZones(pCtx) {
-//   const colors = ['red', 'orange', 'yellow', 'green', 'blue']
-//   const zoneArr = [
-//     [ZONE_CHECK_TOP, ZONE_CHECK_BOTTOM],
-//     // [ZONE_CHECK_MEH_TOP, ZONE_CHECK_MEH_BOTTOM],
-//     [ZONE_CHECK_OK_TOP, ZONE_CHECK_OK_BOTTOM],
-//     [ZONE_CHECK_GOOD_TOP, ZONE_CHECK_GOOD_BOTTOM],
-//     [ZONE_CHECK_PERFECT_TOP, ZONE_CHECK_PERFECT_BOTTOM],
-//   ]
+function drawDebugZones(pCtx) {
+  const colors = ['red', 'orange', 'yellow', 'green', 'blue']
+  const zoneArr = [
+    [ZONE_CHECK_TOP, ZONE_CHECK_BOTTOM],
+    // [ZONE_CHECK_MEH_TOP, ZONE_CHECK_MEH_BOTTOM],
+    [ZONE_CHECK_OK_TOP, ZONE_CHECK_OK_BOTTOM],
+    [ZONE_CHECK_GOOD_TOP, ZONE_CHECK_GOOD_BOTTOM],
+    [ZONE_CHECK_PERFECT_TOP, ZONE_CHECK_PERFECT_BOTTOM],
+  ]
 
-//   zoneArr.forEach(([top, bottom], i) => {
-//     const x = 50 + (4 * (i + 1))
-//     const y = top
+  cX.fillRect(0, (Math.floor(BOARD_HEIGHT / HORIZONTAL_SECTIONS) * (HORIZONTAL_SECTIONS - 2)) - (SECTION_HEIGHT / 2), 500, SECTION_HEIGHT)
 
-//     pCtx.fillStyle = colors[i]
-//     pCtx.fillRect(x, y, 4, bottom - top)
-//   })
-// }
+  zoneArr.forEach(([top, bottom], i) => {
+    const x = 50 + (4 * (i + 1))
+    const y = top
+
+    pCtx.fillStyle = colors[i]
+    pCtx.fillRect(x, y, 4, bottom - top)
+  })
+}
 /* #endregion */
