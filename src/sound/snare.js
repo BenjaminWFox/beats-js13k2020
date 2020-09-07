@@ -42,12 +42,12 @@ Snare.prototype.setup = function () {
 Snare.prototype.trigger = function (time) {
   this.setup()
 
-  this.nE.gain.setValueAtTime(.5, time)
+  this.nE.gain.setValueAtTime(.25, time)
   this.nE.gain.exponentialRampToValueAtTime(0.01, time + 0.2)
   this.n.start(time)
 
   this.o.frequency.setValueAtTime(100, time)
-  this.oE.gain.setValueAtTime(0.7, time)
+  this.oE.gain.setValueAtTime(0.5, time)
   this.oE.gain.exponentialRampToValueAtTime(0.01, time + 0.1)
   this.o.start(time)
 

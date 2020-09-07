@@ -14,7 +14,7 @@ Bass.prototype.trigger = function (time) {
   this.setup()
 
   this.o.frequency.setValueAtTime(100, time)
-  this.g.gain.setValueAtTime(1, time)
+  this.g.gain.setValueAtTime(.75, time)
 
   this.o.frequency.exponentialRampToValueAtTime(0.01, time + 1.25)
   this.g.gain.exponentialRampToValueAtTime(0.01, time + 1.25)
