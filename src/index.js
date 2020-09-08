@@ -1,10 +1,8 @@
 /* #region ******** IMPORTS ******** */
 
 import { init as initKontra, clamp, Text, GameLoop, Scene } from './kontra.mjs'
-import Bass from './sound/bass'
-import Kick from './sound/kick'
-import Snare from './sound/snare'
-import HiHat from './sound/hihat'
+// import Snare from './sound/snare'
+// import HiHat from './sound/hihat'
 import lt from './assets/images/levels/lt.png'
 import l1 from './assets/images/levels/l1.png'
 import l2 from './assets/images/levels/l2.png'
@@ -160,14 +158,158 @@ function uuidv4() {
 }
 /* #endregion */
 
+/* #region ******** BEATS ******** */
+
+function BassKick(pC, pFX, pST) {
+  let o
+  let g
+  const c = pC
+  const fX = pFX
+  const sT = pST
+
+  function setup() {
+    o = c.createOscillator()
+    g = c.createGain()
+    o.connect(g)
+    g.connect(c.destination)
+  }
+
+  return {
+    trigger(time) {
+      setup()
+
+      console.log(o, g, c)
+
+      o.frequency.setValueAtTime(fX, time)
+      g.gain.setValueAtTime(.95, time)
+
+      o.frequency.exponentialRampToValueAtTime(0.01, time + 1.25)
+      g.gain.exponentialRampToValueAtTime(0.01, time + 1.25)
+
+      o.start(time)
+
+      o.stop(time + sT)
+    },
+  }
+}
+
+function Snare(pC) {
+  const c = pC
+  let nE
+  let nF
+  let n
+  let o
+  let oE
+
+  function nb() {
+    const bS = c.sampleRate
+    const b = c.createBuffer(1, bS, c.sampleRate)
+    const o = b.getChannelData(0)
+
+    for (let i = 0; i < bS; i++) {
+      o[i] = (Math.random() * 2) - 1
+    }
+
+    return b
+  }
+  function setup() {
+    n = c.createBufferSource()
+
+    n.buffer = nb()
+    nF = c.createBiquadFilter()
+
+    nF.type = 'highpass'
+    nF.frequency.value = 1000
+    n.connect(nF)
+    // …
+
+    nE = c.createGain()
+    nF.connect(nE)
+
+    nE.connect(c.destination)
+
+    // ...
+    o = c.createOscillator()
+    o.type = 'triangle'
+
+    oE = c.createGain()
+    o.connect(oE)
+    oE.connect(c.destination)
+  }
+
+  return {
+    trigger: (time) => {
+      setup()
+      nE.gain.setValueAtTime(.25, time)
+      nE.gain.exponentialRampToValueAtTime(0.01, time + 0.2)
+      n.start(time)
+      o.frequency.setValueAtTime(100, time)
+      oE.gain.setValueAtTime(0.5, time)
+      oE.gain.exponentialRampToValueAtTime(0.01, time + 0.1)
+      o.start(time)
+      o.stop(time + 0.2)
+      n.stop(time + 0.2)
+    },
+  }
+}
+
+function HiHat(pC) {
+  const c = pC
+  const fundamental = 40
+  const ratios = [2, 3, 4.16, 5.43, 6.79, 8.21]
+  let g
+  let b
+  let h
+
+  function setup() {
+    g = c.createGain()
+    b = c.createBiquadFilter()
+    b.type = 'bandpass'
+    b.frequency.value = 10000
+    h = c.createBiquadFilter()
+    h.type = 'highpass'
+    h.frequency.value = 7000
+    b.connect(h)
+    h.connect(g)
+    g.connect(c.destination)
+  }
+
+  return {
+    trigger(time) {
+      setup()
+
+      ratios.forEach((ratio) => {
+        const osc = c.createOscillator()
+
+        osc.type = 'square'
+        // Frequency is the fundamental * this oscillator's ratio
+        osc.frequency.value = fundamental * ratio
+        osc.connect(b)
+        osc.start(time)
+        osc.stop(time + 0.5)
+      })
+
+      // Define the volume envelope
+      g.gain.setValueAtTime(0.00001, time)
+      g.gain.exponentialRampToValueAtTime(.75, time + 0.02)
+      g.gain.exponentialRampToValueAtTime(0.3, time + 0.08)
+      g.gain.exponentialRampToValueAtTime(0.00001, time + 0.5)
+    },
+  }
+}
+
+// Create the oscillators
+
+/* #endregion ******** BEATS ******** */
+
 /* #region ******** AUDIO ******** */
 /* eslint-disable */
 const AudioContext = window.AudioContext || window.webkitAudioContext
 const aCtx = new AudioContext()
-const bass = new Bass(aCtx)
-const kick = new Kick(aCtx)
-const snare = new Snare(aCtx)
-const hihat = new HiHat(aCtx)
+const bass = BassKick(aCtx, 100, 1)
+const kick = BassKick(aCtx, 200, 1.25)
+const snare = Snare(aCtx)
+const hihat = HiHat(aCtx)
 
 
 // zzfx() - the universal entry point -- returns a AudioBufferSourceNode
