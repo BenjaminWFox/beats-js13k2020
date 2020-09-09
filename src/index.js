@@ -750,7 +750,7 @@ function parseLevels() {
             // BigO fail. At least N is small.
             for (let m = 0; m < 4; m += 1) {
               // console.log('Checking row', m)
-              for (let p = lastRepeatStartIndex; p < j; p += 1) {
+              for (let p = lastRepeatStartIndex; p <= j; p += 1) {
                 // console.log('foundIndexLoc', m, p, lvl.data[m][p])
                 if (lvl.data[m][p]) {
                   ttB += 1
