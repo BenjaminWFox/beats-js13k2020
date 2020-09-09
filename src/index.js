@@ -679,9 +679,31 @@ function saveProgress(i) {
   console.log(p)
   localStorage.setItem(progressVariable, p.join(''))
 }
+const msg = (i, m) => {
+  localStorage[`OS13kTrophy,${i},Beats Not Found,Perfect`] = `Perfect on ${m}`
+}
+
+function checkForPerfectScore(i) {
+  const icons = ['💗', '🎓', '🔉', '🚙', '🥁']
+  let perfects = 0
+
+  if (levels[i].maxScore === score) {
+    msg(icons[i - 1], ln[i])
+  }
+
+  for (let p = 0; p < icons.length; p += 1) {
+    if (localStorage[`OS13kTrophy,${icons[p]},Beats Not Found,Perfect`]) {
+      perfects += 1
+    }
+  }
+  if (perfects === icons.length) {
+    msg('🔥', 'All Levels')
+  }
+}
 
 function completeLevel() {
-  console.log('Level Complete')
+  console.log('Level Complete', currentLevel)
+  checkForPerfectScore(currentLevel)
   saveProgress(currentLevel)
   setScene(postlevelscene)
 }
@@ -1142,7 +1164,7 @@ function renderAnyPoppers() {
 /* #region ******** DRAWING ******** */
 
 function drawBackground() {
-  // drawDebugZones(cX)
+  drawDebugZones(cX)
   // drawRows(context)
 
   // DRAW ZONE:
@@ -1316,8 +1338,8 @@ function initConstants() {
   // ZONE_CHECK_MEH_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
   // ZONE_CHECK_MEH_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.5)))
   ZONE_CHECK_OK_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.25)))
-  ZONE_CHECK_GOOD_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 2)))
-  ZONE_CHECK_PERFECT_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 3.5)))
+  ZONE_CHECK_GOOD_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 1.75)))
+  ZONE_CHECK_PERFECT_TOP = ZONE_CHECK_TOP + Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 2.5)))
   ZONE_CHECK_OK_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT - (SECTION_HEIGHT / 3)))
   ZONE_CHECK_GOOD_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT))
   ZONE_CHECK_PERFECT_BOTTOM = ZONE_CHECK_BOTTOM - Math.floor((SECTION_HEIGHT * 1.3))
@@ -1458,7 +1480,6 @@ function initScenes() {
       this._c[1].y = 100
       this._c[1].opacity = 0
       this._c[1].color = COLORS.perfect
-      this._c[1].text = `SCORE:\n${score}`
       this._c[1].font = gFont(30)
     },
   })
@@ -1608,24 +1629,24 @@ function blinkOverTime(c, t, dur, el) {
 //   }
 // }
 
-// function drawDebugZones(pCtx) {
-//   const colors = ['red', 'orange', 'yellow', 'green', 'blue']
-//   const zoneArr = [
-//     [ZONE_CHECK_TOP, ZONE_CHECK_BOTTOM],
-//     // [ZONE_CHECK_MEH_TOP, ZONE_CHECK_MEH_BOTTOM],
-//     [ZONE_CHECK_OK_TOP, ZONE_CHECK_OK_BOTTOM],
-//     [ZONE_CHECK_GOOD_TOP, ZONE_CHECK_GOOD_BOTTOM],
-//     [ZONE_CHECK_PERFECT_TOP, ZONE_CHECK_PERFECT_BOTTOM],
-//   ]
+function drawDebugZones(pCtx) {
+  const colors = ['red', 'orange', 'yellow', 'green', 'blue']
+  const zoneArr = [
+    [ZONE_CHECK_TOP, ZONE_CHECK_BOTTOM],
+    // [ZONE_CHECK_MEH_TOP, ZONE_CHECK_MEH_BOTTOM],
+    [ZONE_CHECK_OK_TOP, ZONE_CHECK_OK_BOTTOM],
+    [ZONE_CHECK_GOOD_TOP, ZONE_CHECK_GOOD_BOTTOM],
+    [ZONE_CHECK_PERFECT_TOP, ZONE_CHECK_PERFECT_BOTTOM],
+  ]
 
-//   cX.fillRect(0, (Math.floor(BOARD_HEIGHT / HORIZONTAL_SECTIONS) * (HORIZONTAL_SECTIONS - 2)) - (SECTION_HEIGHT / 2), 500, SECTION_HEIGHT)
+  cX.fillRect(0, (Math.floor(BOARD_HEIGHT / HORIZONTAL_SECTIONS) * (HORIZONTAL_SECTIONS - 2)) - (SECTION_HEIGHT / 2), 500, SECTION_HEIGHT)
 
-//   zoneArr.forEach(([top, bottom], i) => {
-//     const x = 50 + (4 * (i + 1))
-//     const y = top
+  zoneArr.forEach(([top, bottom], i) => {
+    const x = 50 + (4 * (i + 1))
+    const y = top
 
-//     pCtx.fillStyle = colors[i]
-//     pCtx.fillRect(x, y, 4, bottom - top)
-//   })
-// }
+    pCtx.fillStyle = colors[i]
+    pCtx.fillRect(x, y, 4, bottom - top)
+  })
+}
 /* #endregion */
