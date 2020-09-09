@@ -561,7 +561,6 @@ function checkCollision(beatIndex) {
         if (sY >= ZONE_CHECK_BOTTOM) {
           // console.log('SPRITE MISSED!')
           spawnScorePopper(result.b, beatIndex)
-
           didHit = setHit(sprite)
 
           continue
