@@ -1,10 +1,13 @@
-## Webpack Base for js13kGames
+## Beats Not Found
 
-### Getting started
+This is a percussive rhythm game created for the 2020 JS13k Games competition.
 
-`git clone https://github.com/BenjaminWFox/js13k-webpack-starter-2020.git`
+Play the game:
 
-`cd js13k-webpack-starter-2020`
+https://js13kgames.com/entries/beats-not-found
+
+
+Hack on it locally*:
 
 `npm install`
 
@@ -12,16 +15,4 @@
 
 http://localhost:8080/
 
-### Scripts
-
-- `develop`: Starts the webpack dev server on http://localhost:8080/
-- `build`: Creates a compact, minified build in `/dist`
-- `lint`: Runs eslint to check for errors. Better to set this up in your IDE to check automatically on save.
-
-### js13k specific files
-
-None of these files are included in your final bundle.
-
-- `manifest.json` - The metadata file used when submitting your final game
-- `image_large.png` - The large image that shows on the game detail page
-- `image_thumbnail.png` - The thumbnail preview image that shows on the games gallery page
+*That may be challenging as I ran low on space and had to mangle things pretty thoroughly. Sorry about that.
